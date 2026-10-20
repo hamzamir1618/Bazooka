@@ -11,3 +11,8 @@ design/vendor/
 
 # Superseded single-file builds from before design/share/ existed
 design/*-standalone.html
+
+# App build
+dist/
+*.tsbuildinfo
+tests/.shots/

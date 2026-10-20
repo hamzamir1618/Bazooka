@@ -1,12 +1,34 @@
 {
-  "name": "bazooka-design",
+  "name": "bazooka",
   "private": true,
-  "description": "BAZOOKA landing page design prototype",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "BAZOOKA shawarma website",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
     "build:share": "python design/scripts/build_share.py",
-    "test": "node design/scripts/smoke.mjs"
+    "test": "node tests/smoke.mjs",
+    "test:design": "node design/scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.1",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "playwright": "1.56.1"
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "playwright": "1.56.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

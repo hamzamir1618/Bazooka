@@ -2,7 +2,7 @@
 
 > **Last Updated:** October 16, 2026  
 > **Workspace Root:** `D:\OFFICE WORK\WeZero\franchise-os\BAZOOKA`  
-> **Current Phase:** Prototype v4.1: single pinned theatre with 15 snap-to-beat scroll beats (`design/prototype.html`). The design spec (`design/index.html`) now embeds the live prototype for its reel and 9 labs. Next: review the new choreography, then the React 18 + TypeScript + Vite + GSAP production build.
+> **Current Phase:** Production site v1 built at the repo root (React 18 + TypeScript + Vite + GSAP + Lenis): the 15-beat reel as the home page, plus Menu, Dish, Story, Visit, Order and Confirm screens with themed transitions and an in-memory pickup tray. See `README.md`. The design prototype (`design/prototype.html`) and the manager review doc remain as approval material.
 > **Guardrail status:** The palette and type in §2 are canonical (confirmed Oct 16, 2026). Guardrails are now *soft* constraints: deviate when it clearly improves the experience.
 
 ---
@@ -132,12 +132,15 @@ All prices are in rupees (`Rs`), as placeholders: wraps Rs 850–1,450 (Original
 
 ---
 
-## 5. Sibling Project Reference & Production Stack (`WeZero/franchise-os`)
+## 5. Production Site (built) & Sibling Projects (`WeZero/franchise-os`)
+
+The production site lives at the repo root; `README.md` has the screens, transitions and file map, has the working rules and pitfalls. Decisions made with the user (Oct 20, 2026): a full sibling-style site rather than a single page; ordering as an in-memory pickup tray (pay at the window, nothing sent); placeholder branches (three in Lahore, 6 PM–4 AM) until real details arrive.
+
 
 When transitioning from `design/prototype.html` to the full production application at the root of `BAZOOKA/`:
 - **Framework:** React 18 + TypeScript + Vite (matching sibling projects `RUSSRUSS`, `STACC-Deli`, `KOI`, `GRUFF` in `D:\OFFICE WORK\WeZero\franchise-os\`).
 - **Animation Engine:** `gsap` (`^3.12.5` with `ScrollTrigger` and `useGSAP` / `gsap.context()`) + `lenis` (`^1.1.13`) synced via `gsap.ticker`.
-- **Assets Location:** Copy `design/assets/*.webp` into `public/assets/*.webp`.
+- **Assets Location:** `design/assets/*.webp` are copied into `public/assets/` (minus the two reference rows `slices-row` and `garnishes-row`). Re-copy after re-running the cutout pipeline.
 
 ---
 
