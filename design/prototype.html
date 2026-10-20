@@ -1,0 +1,2026 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BAZOOKA Scroll Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Chivo+Mono:wght@500;700;800&family=Dela+Gothic+One&family=Reem+Kufi:wght@700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<style>
+:root {
+  --nile: #0D1326;
+  --nile-m: #16203D;
+  --sand: #EBE1C9;
+  --sand-d: #DCD0B2;
+  --cobalt: #1B3BF5;
+  --vermilion: #D9232E;
+  --pistachio: #0D9463;
+  --ochre: #D99B26;
+  --foil: #D8E0E8;
+
+  --f-kufi: 'Reem Kufi', sans-serif;
+  --f-ruqaa: 'Aref Ruqaa', serif;
+  --f-poster: 'Dela Gothic One', sans-serif;
+  --f-mono: 'Chivo Mono', monospace;
+
+  /* Live plate misregistration, driven by scroll velocity */
+  --mis: 0px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--nile); }
+body {
+  color: var(--nile);
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+}
+img { display: block; user-select: none; -webkit-user-drag: none; }
+
+/* Halftone Lithograph Grain Overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900;
+  background-image:
+    radial-gradient(rgba(13, 19, 38, 0.06) 1px, transparent 1px),
+    radial-gradient(rgba(217, 35, 46, 0.035) 1px, transparent 1px);
+  background-size: 6px 6px, 14px 14px;
+}
+
+.riso-h {
+  font-family: var(--f-poster);
+  text-transform: uppercase;
+  line-height: 0.94;
+  text-shadow:
+    calc(-4px - var(--mis)) calc(-3px - var(--mis) * 0.6) 0 var(--cobalt),
+    calc(4px + var(--mis)) calc(3px + var(--mis) * 0.6) 0 var(--vermilion);
+}
+.kicker {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: clamp(0.62rem, 0.9vw, 0.76rem);
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  background: var(--nile);
+  color: var(--ochre);
+  border: 2px solid var(--ochre);
+}
+
+/* ============================================================================
+   HUD
+   ============================================================================ */
+.hud {
+  position: fixed;
+  top: 14px;
+  left: 18px;
+  right: 18px;
+  z-index: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: none;
+}
+.hud-box {
+  pointer-events: auto;
+  background: var(--nile);
+  color: var(--sand);
+  border: 2.5px solid var(--ochre);
+  padding: 7px 12px;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 4px 4px 0 var(--vermilion);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.hud-meter {
+  width: 90px;
+  height: 7px;
+  background: var(--nile-m);
+  border: 1px solid var(--ochre);
+  position: relative;
+  overflow: hidden;
+}
+.hud-meter-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: var(--vermilion);
+}
+.hud-snap {
+  font: inherit;
+  background: var(--pistachio);
+  color: var(--sand);
+  border: 1.5px solid var(--sand);
+  padding: 2px 7px;
+  cursor: pointer;
+}
+.hud-snap[aria-pressed="false"] { background: var(--nile-m); color: var(--ochre); }
+@media (max-width: 760px) {
+  .hud-back span { display: none; }
+  .hud-meter { width: 46px; }
+  #hudStage { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* ============================================================================
+   CONTRAPTION 01 · 3-PLATE SILKSCREEN ROLLER INTRO
+   ============================================================================ */
+#lithoIntro {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  pointer-events: none;
+}
+.litho-plate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: clamp(3rem, 11vw, 8.5rem);
+  color: var(--sand);
+  border-left: 10px solid var(--ochre);
+  border-right: 10px solid var(--ochre);
+}
+.litho-plate small {
+  font-family: var(--f-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+}
+
+/* ============================================================================
+   THE THEATRE — one pinned viewport; every scene is a layer inside it
+   ============================================================================ */
+#theatre {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--nile);
+}
+#world { position: absolute; inset: 0; }
+.scene { position: absolute; inset: 0; overflow: hidden; }
+#scDrum    { z-index: 1; }
+#scKiosk   { z-index: 2; }
+#scNight   { z-index: 3; }
+#scAnatomy { z-index: 4; }
+#scHero    { z-index: 5; }
+
+/* Comic-poster impact stamps (Aref Ruqaa onomatopoeia) */
+.stamp {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 4px solid var(--nile);
+  padding: 4px 22px 10px;
+  box-shadow: 8px 8px 0 var(--cobalt);
+  visibility: hidden;
+}
+.stamp b {
+  font-family: var(--f-ruqaa);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 1.1;
+}
+.stamp i {
+  font-style: normal;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+  letter-spacing: 0.18em;
+}
+.stamp.ochre { background: var(--ochre); color: var(--nile); box-shadow: 8px 8px 0 var(--vermilion); }
+.stamp.cobalt { background: var(--cobalt); box-shadow: 8px 8px 0 var(--vermilion); }
+
+/* ============================================================================
+   SCENE 1 · HERO — FOIL TORNADO → IRON CLAMP → ROCKET LAUNCH
+   ============================================================================ */
+#scHero {
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+}
+.poster-frame {
+  position: absolute;
+  inset: 16px;
+  border: 3.5px solid var(--nile);
+  pointer-events: none;
+  z-index: 2;
+}
+.poster-frame::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1.5px solid var(--ochre);
+}
+.hero-header {
+  position: absolute;
+  top: clamp(64px, 9vh, 96px);
+  left: clamp(28px, 4vw, 56px);
+  right: clamp(28px, 4vw, 56px);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  z-index: 6;
+}
+.hero-header h1 { font-size: clamp(2.8rem, 8vw, 7rem); }
+.hero-header .ar {
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 6.6vw, 5.6rem);
+  color: var(--vermilion);
+  text-shadow: -4px -3px 0 var(--cobalt);
+  line-height: 1;
+}
+#heroScope {
+  position: absolute;
+  width: min(66vw, 480px);
+  opacity: 0.42;
+  z-index: 3;
+}
+#heroChilli {
+  position: absolute;
+  width: min(62vw, 520px);
+  z-index: 4;
+  opacity: 0.92;
+  filter: drop-shadow(8px 10px 0 rgba(13, 19, 38, 0.85));
+}
+.hero-tilt {
+  position: relative;
+  width: min(56vw, 780px, 86vh);
+  margin-top: 6vh;
+  z-index: 8;
+  transform-style: preserve-3d;
+}
+#heroRocket { position: relative; }
+#heroWrapImg {
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(14px 18px 0 rgba(13, 19, 38, 0.92));
+}
+/* Exhaust = shatta flame + glow at the foil tail (lower-left) */
+#heroExhaust {
+  position: absolute;
+  left: -34%;
+  top: 52%;
+  width: 62%;
+  z-index: 1;
+  transform-origin: 85% 30%;
+}
+#heroExhaust img { width: 100%; transform: rotate(168deg) scaleY(-1); }
+#heroExhaust::after {
+  content: '';
+  position: absolute;
+  inset: -20% -10%;
+  background: radial-gradient(closest-side, rgba(217, 155, 38, 0.95), rgba(217, 35, 46, 0.55) 55%, transparent);
+  filter: blur(6px);
+  z-index: -1;
+}
+.orb { position: absolute; pointer-events: none; }
+.orb img {
+  width: 100%;
+  filter: drop-shadow(8px 10px 0 rgba(13, 19, 38, 0.85));
+  transform: rotate(var(--r, 0deg));
+  animation: bob var(--t, 3.2s) ease-in-out infinite alternate;
+}
+@keyframes bob {
+  from { transform: translateY(-7px) rotate(var(--r, 0deg)); }
+  to   { transform: translateY(7px) rotate(calc(var(--r, 0deg) + 7deg)); }
+}
+#heroPress {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(54vw, 600px);
+  z-index: 12;
+  pointer-events: none;
+  filter: drop-shadow(16px 22px 0 var(--nile));
+}
+.steam {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 18vmin;
+  height: 18vmin;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.95), rgba(235, 225, 201, 0.5) 60%, transparent);
+  filter: blur(4px);
+  z-index: 13;
+  pointer-events: none;
+  visibility: hidden;
+}
+.hero-ribbon {
+  position: absolute;
+  z-index: 12;
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 3px solid var(--nile);
+  padding: 6px 18px;
+  box-shadow: 6px 6px 0 var(--cobalt);
+}
+#heroRibbonL {
+  bottom: clamp(30px, 5vh, 48px);
+  left: clamp(28px, 4vw, 56px);
+  transform: skewY(-4deg);
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: clamp(0.9rem, 1.6vw, 1.3rem);
+}
+#heroRibbonR {
+  bottom: clamp(34px, 5.4vh, 52px);
+  right: clamp(28px, 4vw, 56px);
+  background: var(--nile);
+  color: var(--ochre);
+  transform: skewY(4deg);
+  box-shadow: 6px 6px 0 var(--vermilion);
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+.scroll-cue {
+  display: inline-block;
+  animation: cue 1.1s ease-in-out infinite alternate;
+}
+@keyframes cue { to { transform: translateY(4px); } }
+/* Poster furniture that fills the hero's side columns */
+.hero-watermark {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: min(36vw, 62vh);
+  line-height: 1;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(27, 59, 245, 0.16);
+  pointer-events: none;
+  user-select: none;
+}
+.hero-side {
+  position: absolute;
+  z-index: 7;
+  width: clamp(190px, 17.5vw, 270px);
+}
+.hero-side.l { left: clamp(36px, 4.4vw, 68px); top: 30%; }
+.hero-side.r { right: clamp(36px, 4.4vw, 68px); top: 33%; }
+.hero-side .tagline {
+  font-family: var(--f-ruqaa);
+  font-size: clamp(1.9rem, 3vw, 2.9rem);
+  line-height: 1.15;
+  color: var(--vermilion);
+  margin-top: 14px;
+  transform: skewY(-5deg);
+  text-shadow: 3px 3px 0 rgba(27, 59, 245, 0.35);
+}
+.hero-side .tag-en {
+  font-weight: 800;
+  font-size: clamp(0.8rem, 1.05vw, 0.98rem);
+  line-height: 1.35;
+  margin-top: 12px;
+}
+.specs {
+  margin-top: 16px;
+  border-top: 2.5px solid var(--nile);
+  font-family: var(--f-mono);
+  font-size: clamp(0.66rem, 0.85vw, 0.8rem);
+  font-weight: 800;
+}
+.specs div {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1.5px dashed rgba(13, 19, 38, 0.45);
+}
+.specs dt { color: var(--cobalt); }
+.specs dd { color: var(--nile); }
+.ticket {
+  position: relative;
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 3.5px solid var(--nile);
+  box-shadow: 9px 9px 0 var(--cobalt);
+  padding: 14px 22px 16px;
+  text-align: center;
+  transform: rotate(5deg);
+}
+.ticket::before, .ticket::after {
+  content: '';
+  position: absolute;
+  top: 58%;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: var(--sand);
+  border: 3.5px solid var(--nile);
+}
+.ticket::before { left: -13px; clip-path: inset(0 0 0 50%); }
+.ticket::after { right: -13px; clip-path: inset(0 50% 0 0); }
+.ticket .t-top { font-family: var(--f-mono); font-weight: 800; font-size: clamp(0.62rem, 0.8vw, 0.74rem); letter-spacing: 0.14em; }
+.ticket .t-price { font-family: var(--f-poster); font-size: clamp(1.8rem, 2.7vw, 2.7rem); line-height: 1.05; margin-top: 6px; white-space: nowrap; text-shadow: 3px 3px 0 var(--nile); }
+.ticket .t-name { font-family: var(--f-poster); font-size: clamp(0.8rem, 1.1vw, 1rem); }
+.ticket .t-ar { font-family: var(--f-kufi); font-weight: 800; font-size: clamp(1.4rem, 2.2vw, 2rem); color: var(--ochre); line-height: 1.1; }
+.ticket .t-stub {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 2.5px dashed var(--sand);
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: clamp(0.58rem, 0.75vw, 0.7rem);
+  letter-spacing: 0.1em;
+}
+.hero-side.r .stars {
+  margin-top: 26px;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: clamp(0.62rem, 0.8vw, 0.74rem);
+  line-height: 1.6;
+}
+.hero-side.r .stars b { display: block; color: var(--vermilion); font-size: 1.4em; letter-spacing: 0.2em; }
+@media (max-width: 1100px) {
+  .hero-side .tag-en, .hero-side.r .stars { display: none; }
+}
+@media (max-width: 760px) {
+  #heroRibbonR, .hero-side .tag-en, .specs, .hero-side.r .stars { display: none; }
+  .hero-tilt { width: 88vw; }
+  .hero-watermark { font-size: 62vw; }
+  .hero-side.l { top: calc(clamp(64px, 9vh, 96px) + 112px); left: 28px; right: 28px; width: auto; }
+  .hero-side .tagline { font-size: clamp(1.4rem, 7vw, 1.9rem); margin-top: 8px; white-space: nowrap; }
+  .hero-side .tagline br { display: none; }
+  .hero-side.r { top: auto; bottom: calc(clamp(30px, 5vh, 48px) + 68px); right: 30px; width: 54vw; }
+  .ticket { padding: 8px 14px 10px; }
+  .ticket .t-price { font-size: 1.7rem; }
+  .ticket .t-ar, .ticket .t-stub { display: none; }
+}
+
+/* Exhaust trail wipe (three plates streak along the rocket's flight path) */
+#trail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: 30;
+  transform: rotate(-24deg);
+  pointer-events: none;
+}
+#trail .band {
+  position: absolute;
+  left: -150vmax;
+  width: 300vmax;
+  height: 15vmax;
+  transform-origin: 0 50%;
+}
+#trail .b-v { top: -26vmax; background: var(--vermilion); }
+#trail .b-c { top: 11vmax; background: var(--cobalt); }
+#trail .b-n { top: -7.5vmax; background: var(--nile); }
+
+/* ============================================================================
+   SCENE 2 · ANATOMY — CRASH → CHOP INTO 5 SLICES → SWORD CLEAVE
+   ============================================================================ */
+#scAnatomy { background: transparent; }
+.cut-half {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--nile);
+  color: var(--sand);
+}
+.cut-half.tl { clip-path: polygon(0 0, 100% 0, 0 100%); }
+.cut-half.br { clip-path: polygon(100% -2%, 100% 100%, -2% 100%); }
+.ana-title {
+  position: absolute;
+  top: clamp(70px, 11vh, 110px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0 16px;
+}
+.ana-title h2 { font-size: clamp(1.7rem, 4.6vw, 4rem); color: var(--sand); margin-top: 10px; }
+.ana-title .ar {
+  font-family: var(--f-ruqaa);
+  font-size: clamp(1.6rem, 3.4vw, 2.8rem);
+  color: var(--vermilion);
+  display: inline-block;
+  transform: skewY(-5deg);
+  margin-top: 6px;
+}
+.slice-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(4px, 1.6vw, 26px);
+}
+.slice-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.slice-item img {
+  width: clamp(62px, 13vw, 180px);
+  filter: drop-shadow(10px 12px 0 rgba(0, 0, 0, 0.75));
+}
+.slice-tag {
+  font-family: var(--f-mono);
+  font-size: clamp(0.5rem, 0.8vw, 0.7rem);
+  font-weight: 800;
+  padding: 5px 8px;
+  border: 2px solid var(--ochre);
+  background: var(--nile-m);
+  color: var(--ochre);
+  white-space: nowrap;
+  box-shadow: 4px 4px 0 #000;
+}
+.slice-item:nth-child(even) { flex-direction: column-reverse; }
+@media (max-width: 760px) {
+  .slice-tag { white-space: normal; text-align: center; max-width: 18vw; }
+}
+#anaWrapClip {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: min(66vw, 820px);
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+#anaWrap img {
+  width: 100%;
+  transform: rotate(24deg);
+  filter: drop-shadow(12px 14px 0 rgba(0, 0, 0, 0.75));
+}
+#knife {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 70vh;
+  z-index: 15;
+  pointer-events: none;
+  filter: drop-shadow(0 0 22px rgba(217, 35, 46, 0.7));
+}
+#slashLine {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 14;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ============================================================================
+   SCENE 3 · 360° ROTISSERIE ORBIT UNDER THE 1968 BULB ARCH
+   ============================================================================ */
+#scDrum { background: var(--nile); }
+.tile-backdrop {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  object-fit: cover;
+  filter: brightness(0.55) contrast(1.12);
+}
+.tile-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 62% 55%, rgba(13,19,38,0.1) 0%, rgba(13,19,38,0.9) 80%);
+}
+.marquee-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 7;
+  pointer-events: none;
+  animation: bulbs 1.8s steps(2) infinite;
+}
+@keyframes bulbs { 50% { filter: brightness(1.14) saturate(1.1); } }
+.marquee-wrap img {
+  width: 100%;
+  height: clamp(90px, 18vh, 200px);
+  object-fit: cover;
+  object-position: bottom center;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.85));
+}
+.cone-wrap {
+  position: absolute;
+  left: 63%;
+  bottom: 3vh;
+  height: 74vh;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+#cone { height: 100%; width: auto; filter: drop-shadow(0 18px 28px rgba(0,0,0,0.85)); }
+#embers {
+  position: absolute;
+  left: 63%;
+  bottom: -2vh;
+  width: min(32vw, 400px);
+  z-index: 3;
+  filter: drop-shadow(0 0 28px rgba(217, 35, 46, 0.8));
+}
+.orb-dish {
+  position: absolute;
+  left: 63%;
+  top: 56%;
+  width: min(30vw, 400px);
+  pointer-events: none;
+  will-change: transform;
+}
+.orb-dish img { width: 100%; filter: drop-shadow(10px 14px 0 rgba(0, 0, 0, 0.7)); }
+.drum-col {
+  position: absolute;
+  left: clamp(20px, 5vw, 72px);
+  top: calc(clamp(90px, 18vh, 200px) + 3vh);
+  width: min(38vw, 480px);
+  z-index: 8;
+}
+.drum-col h2 { color: var(--sand); font-size: clamp(1.4rem, 2.6vw, 2.4rem); margin: 10px 0 18px; }
+.dish-stack { position: relative; height: clamp(200px, 30vh, 270px); perspective: 900px; }
+.dish-card {
+  position: absolute;
+  inset: 0;
+  background: var(--sand);
+  color: var(--nile);
+  border: 4px solid var(--nile);
+  box-shadow: 12px 12px 0 var(--vermilion);
+  display: flex;
+  flex-direction: column;
+  transform-origin: 50% 0;
+}
+.dish-card .bar {
+  padding: 6px 12px;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: 0.78rem;
+  display: flex;
+  justify-content: space-between;
+  color: var(--sand);
+}
+.dish-card .body { padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; justify-content: center; }
+.dish-card .ar { font-family: var(--f-kufi); font-weight: 800; font-size: clamp(1.6rem, 2.8vw, 2.4rem); line-height: 1.05; }
+.dish-card h3 { font-family: var(--f-poster); font-size: clamp(1rem, 1.6vw, 1.35rem); font-weight: 400; }
+.dish-card p { font-size: clamp(0.78rem, 1vw, 0.9rem); font-weight: 600; }
+.dish-dots { display: flex; gap: 6px; margin-top: 22px; }
+.dish-dots span { width: 26px; height: 6px; background: rgba(235, 225, 201, 0.25); border: 1px solid var(--ochre); }
+.dish-dots span.on { background: var(--vermilion); }
+#drumBlackout {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: #05070D;
+  opacity: 0;
+  pointer-events: none;
+}
+#powerCut {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translateX(-50%);
+  z-index: 21;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+  letter-spacing: 0.24em;
+  color: var(--ochre);
+  white-space: nowrap;
+  visibility: hidden;
+}
+@media (max-width: 760px) {
+  .cone-wrap, #embers, .orb-dish { left: 50%; }
+  .cone-wrap { height: 52vh; bottom: 30vh; }
+  #embers { bottom: 26vh; width: 70vw; }
+  .orb-dish { top: 46%; width: 48vw; }
+  .drum-col { left: 16px; right: 16px; width: auto; top: auto; bottom: 16px; }
+  .drum-col h2, .drum-col .kicker { display: none; }
+  .dish-stack { height: 160px; }
+  .dish-card p { display: none; }
+  .dish-dots { display: none; }
+}
+
+/* Match strike FX overlay */
+#matchFX {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  visibility: hidden;
+}
+.striker {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(70vw, 520px);
+  height: 64px;
+  transform: translateX(-50%);
+  background: var(--vermilion);
+  border: 3px solid var(--nile);
+  box-shadow: 0 0 0 3px var(--ochre);
+}
+.striker::before {
+  content: '';
+  position: absolute;
+  inset: 14px 18px;
+  background:
+    radial-gradient(rgba(0,0,0,0.35) 1px, transparent 1.5px) 0 0 / 5px 5px,
+    #5A3420;
+}
+.match {
+  position: absolute;
+  left: 50%;
+  top: calc(58% - 4px);
+  width: min(36vw, 260px);
+  height: 12px;
+  margin-left: calc(min(36vw, 260px) * -1);
+  background: linear-gradient(#F3DDB0, #CFAE78);
+  border-radius: 3px;
+  transform-origin: 100% 50%;
+}
+.match::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: -6px;
+  width: 26px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #F05A4F, var(--vermilion) 55%, #7A0F14);
+}
+.flame {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 70px;
+  height: 120px;
+  margin: -110px 0 0 -35px;
+  border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse at 50% 72%, #FFF6D8 0%, #F7C948 28%, var(--ochre) 46%, var(--vermilion) 72%, transparent 76%);
+  filter: blur(1px) drop-shadow(0 0 30px rgba(247, 201, 72, 0.9));
+  transform-origin: 50% 90%;
+}
+.spark {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FFE7A0;
+  box-shadow: 0 0 12px var(--ochre);
+}
+#flameRing {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  border-radius: 50%;
+  border: 6px solid var(--ochre);
+  box-shadow: 0 0 40px 10px rgba(217, 155, 38, 0.8), inset 0 0 40px rgba(217, 35, 46, 0.7);
+  z-index: 26;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ============================================================================
+   SCENE 4 · THE MATCHBOX KIOSK — STRIKE, SLIDE, POP
+   ============================================================================ */
+#scKiosk {
+  background: var(--sand);
+  clip-path: circle(0% at 50% 58%);
+}
+.kiosk-head {
+  position: absolute;
+  top: clamp(64px, 9vh, 100px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0 16px;
+  z-index: 5;
+}
+.kiosk-head h2 { font-size: clamp(1.9rem, 5vw, 4.2rem); margin-top: 12px; }
+.kiosk-head .ar {
+  font-family: var(--f-ruqaa);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--vermilion);
+  display: inline-block;
+  transform: skewY(-5deg);
+}
+.kiosk-head p { max-width: 560px; margin: 4px auto 0; font-weight: 700; font-size: clamp(0.78rem, 1.1vw, 0.95rem); }
+.shelf {
+  --bw: min(13.5vw, 205px);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(10vh + 40px);
+  display: grid;
+  grid-template-columns: repeat(5, var(--bw));
+  justify-content: center;
+  column-gap: calc(var(--bw) * 0.42);
+  z-index: 4;
+}
+.shelf::after {
+  content: '';
+  position: absolute;
+  left: 4vw;
+  right: 4vw;
+  bottom: -18px;
+  height: 14px;
+  background: var(--nile);
+  border-top: 3px solid var(--ochre);
+  box-shadow: 0 8px 0 rgba(13, 19, 38, 0.25);
+}
+.mb {
+  position: relative;
+  width: var(--bw);
+  height: calc(var(--bw) * 0.64);
+  cursor: pointer;
+}
+.mb-prod {
+  position: absolute;
+  left: 50%;
+  bottom: 70%;
+  width: calc(var(--bw) * 1.2);
+  height: min(28vh, calc(var(--bw) * 1.6));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1;
+  transform-origin: 50% 100%;
+}
+.mb-prod img {
+  max-width: 100%;
+  max-height: 100%;
+  filter: drop-shadow(8px 10px 0 rgba(13, 19, 38, 0.85));
+}
+.mb-drawer {
+  position: absolute;
+  inset: 7% 4% 7% 2%;
+  z-index: 2;
+  background: var(--nile);
+  border: 3px solid var(--nile);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6%;
+}
+.mb-drawer span {
+  writing-mode: vertical-rl;
+  font-family: var(--f-poster);
+  color: var(--ochre);
+  font-size: clamp(0.6rem, 1vw, 0.9rem);
+}
+.mb-sleeve {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 3.5px solid var(--nile);
+  box-shadow: 7px 7px 0 var(--nile);
+  padding: 7% 8% 7% 15%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.mb-sleeve::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 9%;
+  background:
+    radial-gradient(rgba(0,0,0,0.35) 1px, transparent 1.5px) 0 0 / 4px 4px,
+    #5A3420;
+  border-right: 2px solid var(--nile);
+}
+.mb-sleeve small { font-family: var(--f-mono); font-size: clamp(0.42rem, 0.6vw, 0.6rem); font-weight: 800; }
+.mb-sleeve b { font-family: var(--f-kufi); font-weight: 800; font-size: clamp(1rem, 2vw, 1.75rem); line-height: 1; text-align: right; }
+.mb-spark {
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  border-radius: 50%;
+  background: #FFE7A0;
+  box-shadow: 0 0 26px 6px var(--ochre), 0 0 50px var(--vermilion);
+  z-index: 6;
+  pointer-events: none;
+  visibility: hidden;
+}
+.mb-label {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: calc(100% + 26px);
+  text-align: center;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: clamp(0.5rem, 0.75vw, 0.68rem);
+  line-height: 1.35;
+  color: var(--nile);
+}
+.mb-label em { font-style: normal; color: var(--vermilion); display: block; }
+@media (max-width: 760px) {
+  .shelf {
+    --bw: 24vw;
+    grid-template-columns: repeat(3, var(--bw));
+    column-gap: calc(var(--bw) * 0.34);
+    row-gap: 23vh;
+    bottom: calc(5vh + 34px);
+  }
+  .mb-prod { height: 15vh; }
+  .shelf::after { display: none; }
+  .kiosk-head p { display: none; }
+}
+
+/* Rolling steel night shutter (shared by kiosk exit + night entrance) */
+#shutter {
+  position: absolute;
+  inset: 0;
+  z-index: 27;
+  background: repeating-linear-gradient(180deg, #1D2A4D 0px, #16203D 18px, #0D1326 22px, #0D1326 28px);
+  border-bottom: 12px solid var(--ochre);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ochre);
+  pointer-events: none;
+}
+#shutter .ar { font-family: var(--f-kufi); font-weight: 800; font-size: clamp(2.2rem, 6vw, 4.8rem); }
+#shutter .clock {
+  font-family: var(--f-poster);
+  font-size: clamp(2rem, 6vw, 4.6rem);
+  color: var(--sand);
+  background: var(--vermilion);
+  border: 4px solid var(--nile);
+  padding: 2px 20px;
+  box-shadow: 8px 8px 0 var(--cobalt);
+}
+#shutter small { font-family: var(--f-mono); font-size: 0.8rem; letter-spacing: 0.22em; }
+#shutter .handle {
+  position: absolute;
+  bottom: 22px;
+  width: 140px;
+  height: 14px;
+  background: var(--ochre);
+  border: 3px solid var(--nile);
+}
+
+/* ============================================================================
+   SCENE 5 · 3 AM NIGHT WINDOW — SHUTTER LIFT, COUNTER FEAST, RECEIPT
+   ============================================================================ */
+#scNight { background: var(--nile); }
+#nightBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.night-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(13,19,38,0.7) 0%, transparent 32%, transparent 68%, rgba(13,19,38,0.55) 100%);
+}
+#scNight .marquee-wrap img { height: clamp(80px, 15vh, 170px); }
+.night-head {
+  position: absolute;
+  left: clamp(20px, 4vw, 64px);
+  top: calc(clamp(80px, 15vh, 170px) + 4vh);
+  z-index: 8;
+  max-width: 30vw;
+}
+.night-head h2 { color: var(--sand); font-size: clamp(1.6rem, 3.4vw, 3rem); margin-top: 10px; }
+.night-head .ar { font-family: var(--f-ruqaa); color: var(--ochre); font-size: clamp(1.5rem, 2.8vw, 2.4rem); display: inline-block; transform: skewY(-5deg); margin-top: 8px; }
+.night-head p { color: var(--sand); font-weight: 700; font-size: clamp(0.75rem, 1vw, 0.9rem); margin-top: 8px; }
+.receipt-col {
+  position: absolute;
+  right: clamp(20px, 4vw, 64px);
+  top: calc(clamp(80px, 15vh, 170px) + 2vh);
+  width: min(27vw, 330px);
+  z-index: 9;
+}
+.printer-slot {
+  position: relative;
+  height: 20px;
+  background: var(--ochre);
+  border: 3.5px solid var(--nile);
+  box-shadow: 0 6px 0 var(--nile);
+  z-index: 2;
+}
+#receipt {
+  position: relative;
+  margin: -4px 10px 0;
+  clip-path: inset(0 -30px -40px -30px);
+}
+#receiptInner {
+  background: var(--sand);
+  color: var(--nile);
+  border: 3px solid var(--nile);
+  border-top: 0;
+  padding: 14px 18px 16px;
+  font-family: var(--f-mono);
+  font-size: clamp(0.62rem, 0.85vw, 0.76rem);
+  box-shadow: 10px 10px 0 var(--vermilion);
+  position: relative;
+  transform-origin: 50% 0;
+}
+#receiptInner::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+  background: linear-gradient(135deg, var(--sand) 33.3%, transparent 0), linear-gradient(-135deg, var(--sand) 33.3%, transparent 0);
+  background-size: 14px 10px;
+}
+.r-line { display: flex; justify-content: space-between; gap: 8px; }
+#tearBtn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 3px solid var(--nile);
+  font-family: var(--f-poster);
+  font-size: clamp(0.7rem, 0.95vw, 0.88rem);
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--nile);
+}
+#paidStamp {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  border: 4px solid var(--pistachio);
+  color: var(--pistachio);
+  background: rgba(235, 225, 201, 0.94);
+  padding: 6px 14px;
+  font-family: var(--f-poster);
+  font-size: clamp(0.95rem, 1.4vw, 1.3rem);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+}
+.feast { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.feast > div { position: absolute; }
+.feast img { filter: drop-shadow(0 16px 18px rgba(0,0,0,0.85)); }
+.f-tray   { left: 50%; bottom: 1vh; width: min(36vw, 500px); transform: translateX(-50%); }
+.f-tray img { width: 100%; filter: drop-shadow(0 18px 22px rgba(0,0,0,0.9)); }
+.f-wrap   { left: 50%; bottom: 9vh; width: min(25vw, 340px); transform: translateX(-50%); z-index: 2; }
+.f-wrap img { width: 100%; }
+.f-box    { left: 17vw; bottom: 3vh; z-index: 3; }
+.f-box img { height: 24vh; }
+.f-toum   { left: 3vw; bottom: 3vh; z-index: 3; }
+.f-toum img { height: 21vh; }
+.f-jallab { right: 22vw; bottom: 3vh; z-index: 3; }
+.f-jallab img { height: 27vh; }
+.f-pickle { right: 4vw; bottom: 3vh; z-index: 3; }
+.f-pickle img { height: 25vh; }
+@media (max-width: 760px) {
+  .night-head { max-width: none; right: 16px; }
+  .night-head p { display: none; }
+  .receipt-col { width: 64vw; right: 16px; top: 17vh; }
+  .f-tray { width: 74vw; }
+  .f-wrap { width: 50vw; bottom: 7vh; }
+  .f-box img { height: 12vh; }
+  .f-box { left: 2vw; bottom: 17vh; }
+  .f-toum img { height: 11vh; }
+  .f-toum { left: 4vw; bottom: 2vh; }
+  .f-jallab img { height: 13vh; }
+  .f-jallab { right: 3vw; bottom: 17vh; }
+  .f-pickle img { height: 12vh; }
+  .f-pickle { right: 5vw; bottom: 2vh; }
+}
+
+/* Embed mode (?embed): the design doc drives the timeline via postMessage */
+html.embed, html.embed body { overflow: hidden; }
+html.embed .hud, html.embed #lithoIntro, html.embed .fin { display: none; }
+
+/* ============================================================================
+   FIN CARD
+   ============================================================================ */
+.fin {
+  min-height: 60vh;
+  background: var(--sand);
+  border-top: 12px solid var(--ochre);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 60px 16px;
+}
+.fin .ar { font-family: var(--f-ruqaa); font-size: clamp(3rem, 9vw, 6.5rem); color: var(--vermilion); line-height: 1; }
+.fin h2 { font-size: clamp(2rem, 6vw, 4.6rem); }
+.fin button {
+  margin-top: 10px;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 10px 18px;
+  background: var(--nile);
+  color: var(--ochre);
+  border: 2.5px solid var(--ochre);
+  box-shadow: 5px 5px 0 var(--vermilion);
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<nav class="hud">
+  <a class="hud-box hud-back" href="index.html" data-share="drop">← <span>Spec &amp; 29-Sprite Vault</span></a>
+  <div class="hud-box">
+    <span id="hudStage">STAGE 01 · THE SAROUKH</span>
+    <div class="hud-meter"><div class="hud-meter-bar" id="hudBar"></div></div>
+    <button type="button" class="hud-snap" id="snapBtn" aria-pressed="true" title="Snap each scroll flick to the next beat">SNAP</button>
+  </div>
+</nav>
+
+<!-- Contraption 01: 3-Plate Silkscreen Roller Intro -->
+<div id="lithoIntro" aria-hidden="true">
+  <div class="litho-plate" id="lpNile" style="background:var(--nile)">
+    <span>١٩٦٨</span><small>PLATE 00 · NILE KEY</small>
+  </div>
+  <div class="litho-plate" id="lpCobalt" style="background:var(--cobalt)">
+    <span>بازوكا</span><small>PLATE 01 · AL-AHRAM COBALT</small>
+  </div>
+  <div class="litho-plate" id="lpVermilion" style="background:var(--vermilion)">
+    <span>صاروخ</span><small>PLATE 02 · POMEGRANATE VERMILION</small>
+  </div>
+</div>
+
+<main id="theatre">
+  <div id="world">
+
+    <!-- ======================= SCENE 3 · ROTISSERIE ORBIT (bottom layer) ======================= -->
+    <section class="scene" id="scDrum" aria-label="The charcoal spit arsenal">
+      <img src="assets/tile-wall.webp" class="tile-backdrop" id="tileBackdrop" alt="">
+      <div class="tile-vignette"></div>
+      <div class="marquee-wrap"><img src="assets/cinema-marquee.webp" id="drumMarquee" alt=""></div>
+
+      <img src="assets/charcoal-embers.webp" id="embers" alt="">
+      <div class="cone-wrap"><img src="assets/spit-cone.webp" id="cone" alt="Charcoal rotisserie spit cone"></div>
+
+      <div class="orb-dish"><img src="assets/saroukh-hero.webp" alt="El-Bazooka Original"></div>
+      <div class="orb-dish"><img src="assets/saroukh-shatta.webp" alt="Shatta Napalm"></div>
+      <div class="orb-dish"><img src="assets/saroukh-lamb.webp" alt="Dibs and Caramelized Lamb"></div>
+      <div class="orb-dish"><img src="assets/saroukh-toum.webp" alt="Toum Overdose"></div>
+      <div class="orb-dish"><img src="assets/arabi-box.webp" alt="Box El-Shilla Arabi"></div>
+
+      <div class="drum-col">
+        <span class="kicker">CONTRAPTION 04 · 360° ROTISSERIE ORBIT</span>
+        <h2 class="riso-h">The Charcoal Spit Arsenal</h2>
+        <div class="dish-stack">
+          <article class="dish-card">
+            <div class="bar" style="background:var(--vermilion)"><span>SPIT 01 / 05</span><span>Rs 850</span></div>
+            <div class="body">
+              <div class="ar" style="color:var(--vermilion)">صاروخ بازوكا الأصلي</div>
+              <h3>EL-BAZOOKA ORIGINAL</h3>
+              <p>Charcoal-carved beef &amp; thigh, triple-whipped toum, beet-brined torshi &amp; sumac fries in foil-seared saj.</p>
+            </div>
+          </article>
+          <article class="dish-card">
+            <div class="bar" style="background:var(--cobalt)"><span>SPIT 02 / 05</span><span>Rs 950</span></div>
+            <div class="body">
+              <div class="ar" style="color:var(--cobalt)">شطة نابالم حار</div>
+              <h3>SHATTA NAPALM</h3>
+              <p>Crushed red Aleppo shatta, blistered green chilies, charred onions &amp; roasted garlic emulsion.</p>
+            </div>
+          </article>
+          <article class="dish-card">
+            <div class="bar" style="background:var(--pistachio)"><span>SPIT 03 / 05</span><span>Rs 1,150</span></div>
+            <div class="body">
+              <div class="ar" style="color:var(--pistachio)">دبس رمان وغنم</div>
+              <h3>DIBS &amp; CARAMELIZED LAMB</h3>
+              <p>Slow-rendered lamb shoulder, pomegranate molasses, toasted pine nuts, biwaz parsley &amp; tahini.</p>
+            </div>
+          </article>
+          <article class="dish-card">
+            <div class="bar" style="background:var(--ochre); color:var(--nile)"><span>SPIT 04 / 05</span><span>Rs 900</span></div>
+            <div class="body">
+              <div class="ar" style="color:var(--nile)">ثوم مضاعف بالهاون</div>
+              <h3>TOUM OVERDOSE</h3>
+              <p>Double-whipped brass-mortar garlic cloud, sumac potato batons, seared chicken &amp; parsley.</p>
+            </div>
+          </article>
+          <article class="dish-card">
+            <div class="bar" style="background:var(--nile); color:var(--ochre)"><span>SPIT 05 / 05</span><span>Rs 1,450</span></div>
+            <div class="body">
+              <div class="ar" style="color:var(--vermilion)">بوكس الشلة عربي</div>
+              <h3>BOX EL-SHILLA ARABI</h3>
+              <p>Eight butter-seared saj bites, spiced fries, pickled turnip spears &amp; twin dipping cups.</p>
+            </div>
+          </article>
+        </div>
+        <div class="dish-dots" id="dishDots"><span class="on"></span><span></span><span></span><span></span><span></span></div>
+      </div>
+
+      <div id="drumBlackout"></div>
+      <div id="powerCut">⚡ انقطعت الكهربا · POWER CUT ⚡</div>
+    </section>
+
+    <!-- ======================= SCENE 4 · MATCHBOX KIOSK ======================= -->
+    <section class="scene" id="scKiosk" aria-label="The matchbox sauce and jallab kiosk">
+      <div class="kiosk-head">
+        <span class="kicker">CONTRAPTION 05 · STRIKE · SLIDE · POP</span>
+        <h2 class="riso-h">The Matchbox Kiosk</h2>
+        <div class="ar">كشك الكبريت</div>
+        <p>Every Cairo matchbox strikes a spark and pops out a side: brass-mortar toum, Aleppo shatta, torshi, the Arabi carton and Beirut jallab.</p>
+      </div>
+
+      <div class="shelf">
+        <div class="mb">
+          <div class="mb-prod"><img src="assets/toum-mortar.webp" alt="Brass mortar whipped garlic toum"></div>
+          <div class="mb-drawer"><span>+Rs 150</span></div>
+          <div class="mb-sleeve"><small>No.01 · GARLIC ARTILLERY</small><b>ثوم بازوكا</b></div>
+          <div class="mb-spark"></div>
+          <div class="mb-label">WHIPPED BRASS TOUM<em>+Rs 150</em></div>
+        </div>
+        <div class="mb">
+          <div class="mb-prod"><img src="assets/chilli-splash.webp" alt="Fermented Aleppo shatta"></div>
+          <div class="mb-drawer"><span>+Rs 150</span></div>
+          <div class="mb-sleeve" style="background:var(--cobalt)"><small>No.02 · FIRE STARTER</small><b>زيت شطة</b></div>
+          <div class="mb-spark"></div>
+          <div class="mb-label">FERMENTED ALEPPO SHATTA<em>+Rs 150</em></div>
+        </div>
+        <div class="mb">
+          <div class="mb-prod"><img src="assets/pickle-jar.webp" alt="Beet-brined torshi jar"></div>
+          <div class="mb-drawer"><span>+Rs 200</span></div>
+          <div class="mb-sleeve" style="background:var(--pistachio)"><small>No.03 · ACID &amp; CRUNCH</small><b>طرشي لفت</b></div>
+          <div class="mb-spark"></div>
+          <div class="mb-label">BEET-BRINED TORSHI<em>+Rs 200</em></div>
+        </div>
+        <div class="mb">
+          <div class="mb-prod"><img src="assets/arabi-box.webp" alt="Arabi street carton"></div>
+          <div class="mb-drawer"><span>+Rs 1,450</span></div>
+          <div class="mb-sleeve" style="background:var(--nile); color:var(--ochre)"><small>No.04 · HEAVY PLATTER</small><b>بوكس عربي</b></div>
+          <div class="mb-spark"></div>
+          <div class="mb-label">ARABI STREET CARTON<em>+Rs 1,450</em></div>
+        </div>
+        <div class="mb">
+          <div class="mb-prod"><img src="assets/jallab-glass.webp" alt="Iced Beirut ruby jallab"></div>
+          <div class="mb-drawer"><span>+Rs 450</span></div>
+          <div class="mb-sleeve" style="background:var(--ochre); color:var(--nile)"><small>No.05 · STREET ELIXIR</small><b>جلاب بيروت</b></div>
+          <div class="mb-spark"></div>
+          <div class="mb-label">ICED RUBY JALLAB<em>+Rs 450</em></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= SCENE 5 · 3 AM NIGHT WINDOW ======================= -->
+    <section class="scene" id="scNight" aria-label="The 3 AM night window">
+      <img src="assets/night-shop.webp" id="nightBg" alt="Late-night shawarma kiosk window">
+      <div class="night-shade"></div>
+      <div class="marquee-wrap"><img src="assets/cinema-marquee.webp" alt=""></div>
+
+      <div class="night-head" id="nightHead">
+        <span class="kicker">CONTRAPTION 06 · THE NIGHT WINDOW</span>
+        <h2 class="riso-h">Open till the call to prayer</h2>
+        <div class="ar">شباك آخر الليل</div>
+        <p>Pull up to the window, the brass tray lands, and your ticket prints hot.</p>
+      </div>
+
+      <div class="receipt-col">
+        <div class="printer-slot"></div>
+        <div id="receipt">
+          <div id="receiptInner">
+            <div style="text-align:center; border-bottom:2.5px dashed var(--nile); padding-bottom:8px">
+              <div style="font-family:var(--f-kufi); font-weight:800; font-size:clamp(1.1rem, 1.7vw, 1.6rem)">مطعم بازوكا للشاورما</div>
+              <div style="font-weight:800">CAIRO · BEIRUT · WINDOW #04 · 03:00</div>
+            </div>
+            <div style="margin:10px 0; display:grid; gap:5px">
+              <div class="r-line"><span>01x EL-BAZOOKA SAROUKH</span><b>Rs 850</b></div>
+              <div class="r-line"><span>01x BOX EL-SHILLA ARABI</span><b>Rs 1,450</b></div>
+              <div class="r-line"><span>01x ICED RUBY JALLAB</span><b>Rs 450</b></div>
+              <div class="r-line"><span>01x BRASS MORTAR TOUM</span><b>Rs 150</b></div>
+              <div class="r-line"><span>01x TORSHI JAR</span><b>Rs 200</b></div>
+            </div>
+            <div class="r-line" style="border-top:2.5px dashed var(--nile); padding-top:8px; font-size:1.15em; font-weight:800">
+              <span>TOTAL · المجموع</span><span>Rs 3,100</span>
+            </div>
+            <button type="button" id="tearBtn">TEAR TICKET &amp; FIRE ORDER ✂</button>
+            <div id="paidStamp">ORDER FIRED · بالهنا</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feast">
+        <div class="f-tray"><img src="assets/brass-tray.webp" alt="Engraved Syrian brass tray"></div>
+        <div class="f-wrap"><img src="assets/saroukh-hero.webp" alt=""></div>
+        <div class="f-box"><img src="assets/arabi-box.webp" alt=""></div>
+        <div class="f-toum"><img src="assets/toum-mortar.webp" alt=""></div>
+        <div class="f-jallab"><img src="assets/jallab-glass.webp" alt=""></div>
+        <div class="f-pickle"><img src="assets/pickle-jar.webp" alt=""></div>
+      </div>
+    </section>
+
+    <!-- ======================= SCENE 2 · ANATOMY (two cleave halves) ======================= -->
+    <section class="scene" id="scAnatomy" aria-label="Anatomy of the saroukh">
+      <div class="cut-half tl">
+        <div class="ana-title">
+          <span class="kicker">CONTRAPTION 03 · THE 5-SLICE CUTAWAY</span>
+          <h2 class="riso-h">Anatomy of the Saroukh</h2>
+          <div class="ar">تشريح الصاروخ</div>
+        </div>
+        <div class="slice-row">
+          <div class="slice-item"><img src="assets/slice-1.webp" alt="Slice 1"><span class="slice-tag">01 · SEARED SAJ CRUST</span></div>
+          <div class="slice-item"><img src="assets/slice-2.webp" alt="Slice 2"><span class="slice-tag">02 · WHIPPED TOUM RING</span></div>
+          <div class="slice-item"><img src="assets/slice-3.webp" alt="Slice 3"><span class="slice-tag">03 · 450°C SPIT RIBEYE</span></div>
+          <div class="slice-item"><img src="assets/slice-4.webp" alt="Slice 4"><span class="slice-tag">04 · TORSHI TURNIP CORE</span></div>
+          <div class="slice-item"><img src="assets/slice-5.webp" alt="Slice 5"><span class="slice-tag">05 · SUMAC POTATO HEART</span></div>
+        </div>
+      </div>
+      <div class="cut-half br" aria-hidden="true">
+        <div class="ana-title">
+          <span class="kicker">CONTRAPTION 03 · THE 5-SLICE CUTAWAY</span>
+          <h2 class="riso-h">Anatomy of the Saroukh</h2>
+          <div class="ar">تشريح الصاروخ</div>
+        </div>
+        <div class="slice-row">
+          <div class="slice-item"><img src="assets/slice-1.webp" alt=""><span class="slice-tag">01 · SEARED SAJ CRUST</span></div>
+          <div class="slice-item"><img src="assets/slice-2.webp" alt=""><span class="slice-tag">02 · WHIPPED TOUM RING</span></div>
+          <div class="slice-item"><img src="assets/slice-3.webp" alt=""><span class="slice-tag">03 · 450°C SPIT RIBEYE</span></div>
+          <div class="slice-item"><img src="assets/slice-4.webp" alt=""><span class="slice-tag">04 · TORSHI TURNIP CORE</span></div>
+          <div class="slice-item"><img src="assets/slice-5.webp" alt=""><span class="slice-tag">05 · SUMAC POTATO HEART</span></div>
+        </div>
+      </div>
+
+      <div id="anaWrapClip"><div id="anaWrap"><img src="assets/saroukh-hero.webp" alt=""></div></div>
+
+      <svg id="slashLine" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="104" y1="-4" x2="-4" y2="104" stroke="#D99B26" stroke-width="16" vector-effect="non-scaling-stroke" stroke-linecap="round" opacity="0.55"/>
+        <line x1="104" y1="-4" x2="-4" y2="104" stroke="#FFF6D8" stroke-width="4" vector-effect="non-scaling-stroke" stroke-linecap="round"/>
+      </svg>
+      <img src="assets/knife.webp" id="knife" alt="">
+    </section>
+
+    <!-- ======================= SCENE 1 · HERO (top layer) ======================= -->
+    <section class="scene" id="scHero" aria-label="Bazooka shawarma">
+      <div class="poster-frame"></div>
+      <div class="hero-header" id="heroHeader">
+        <h1 class="riso-h">BAZOOKA</h1>
+        <div class="ar">صاروخ شاورما</div>
+      </div>
+
+      <div class="hero-watermark" id="heroWatermark" aria-hidden="true">صاروخ</div>
+
+      <div class="hero-side l" id="heroSideL">
+        <span class="kicker">NOW SHOWING · يعرض الآن</span>
+        <div class="tagline">أقوى صاروخ <br>في البلد</div>
+        <p class="tag-en">The foil-wrapped rocket that has fed Cairo at 3 AM since 1968.</p>
+        <dl class="specs">
+          <div><dt>CALIBER</dt><dd>380 G</dd></div>
+          <div><dt>LENGTH</dt><dd>32 CM</dd></div>
+          <div><dt>SPIT</dt><dd>450 °C</dd></div>
+          <div><dt>FOIL</dt><dd>3-PLY</dd></div>
+        </dl>
+      </div>
+
+      <div class="hero-side r" id="heroSideR">
+        <div class="ticket">
+          <div class="t-top">ADMIT ONE · تذكرة</div>
+          <div class="t-price">Rs 850</div>
+          <div class="t-name">EL-BAZOOKA ORIGINAL</div>
+          <div class="t-ar">الأصلي</div>
+          <div class="t-stub">No. 0380 · LAST SHOW 03:00</div>
+        </div>
+        <div class="stars"><b>★★★★★</b>“A DIRECT HIT”<br>AL-AHRAM NIGHT EDITION</div>
+      </div>
+
+      <svg id="heroScope" viewBox="0 0 260 260" aria-hidden="true">
+        <circle cx="130" cy="130" r="118" fill="none" stroke="#D99B26" stroke-width="3"/>
+        <circle cx="130" cy="130" r="92" fill="none" stroke="#0D1326" stroke-width="1.5" stroke-dasharray="8 6"/>
+        <rect x="48" y="48" width="164" height="164" fill="none" stroke="#1B3BF5" stroke-width="2.5" transform="rotate(45 130 130)"/>
+      </svg>
+
+      <img src="assets/chilli-splash.webp" id="heroChilli" alt="">
+
+      <div class="hero-tilt" id="heroTilt">
+        <div id="heroRocket">
+          <div id="heroExhaust"><img src="assets/chilli-splash.webp" alt=""></div>
+          <img src="assets/saroukh-hero.webp" id="heroWrapImg" alt="The Bazooka: a foil-wrapped saroukh shawarma">
+        </div>
+        <div class="orb hf1" style="width:min(30vw, 220px); left:2%; top:-30%"><img src="assets/foil-curl.webp" alt="" style="--r:-12deg; --t:3.4s"></div>
+        <div class="orb hf2" style="width:min(24vw, 180px); left:30%; bottom:-34%"><img src="assets/foil-curl.webp" alt="" style="--r:25deg; --t:2.9s"></div>
+        <div class="orb hf3" style="width:min(22vw, 165px); right:4%; top:-38%"><img src="assets/foil-curl.webp" alt="" style="--r:65deg; --t:3.8s"></div>
+        <div class="orb hg1" style="width:min(10vw, 84px); right:-6%; top:-6%"><img src="assets/garnish-1.webp" alt="" style="--r:18deg; --t:2.6s"></div>
+        <div class="orb hg2" style="width:min(11vw, 96px); right:-2%; bottom:-24%"><img src="assets/garnish-2.webp" alt="" style="--r:-25deg; --t:3.1s"></div>
+        <div class="orb hg3" style="width:min(12vw, 104px); left:4%; bottom:-28%"><img src="assets/garnish-3.webp" alt="" style="--r:14deg; --t:3.6s"></div>
+        <div class="orb hg4" style="width:min(10vw, 86px); left:-8%; top:-4%"><img src="assets/garnish-4.webp" alt="" style="--r:-32deg; --t:2.8s"></div>
+      </div>
+
+      <img src="assets/iron-press.webp" id="heroPress" alt="">
+      <div class="steam s1"></div><div class="steam s2"></div><div class="steam s3"></div>
+
+      <div class="hero-ribbon" id="heroRibbonL">فك القصدير · SCROLL TO UNPEEL <span class="scroll-cue">↓</span></div>
+      <div class="hero-ribbon" id="heroRibbonR">CAIRO · BEIRUT · SINCE 1968</div>
+    </section>
+
+    <!-- ======================= OVERLAYS ======================= -->
+    <div id="trail" aria-hidden="true"><div class="band b-v"></div><div class="band b-c"></div><div class="band b-n"></div></div>
+
+    <div id="matchFX" aria-hidden="true">
+      <div class="striker"></div>
+      <div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div>
+      <div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div>
+      <div class="flame"></div>
+      <div class="match"></div>
+    </div>
+    <div id="flameRing" aria-hidden="true"></div>
+
+    <div id="shutter" aria-hidden="true">
+      <div class="ar">شباك آخر الليل</div>
+      <div class="clock">03:00 AM</div>
+      <small>THE CITY SLEEPS · THE SPIT DOESN'T</small>
+      <div class="handle"></div>
+    </div>
+
+    <div class="stamp" id="stSear" style="left:8%; top:24%"><b>طَشّ!</b><i>TSSSHH · IRON-SEARED</i></div>
+    <div class="stamp ochre" id="stLaunch" style="right:8%; top:22%"><b>انطلاق!</b><i>LIFT-OFF · 380G</i></div>
+    <div class="stamp" id="stCrash" style="left:7%; top:34%"><b>طاخ!</b><i>TOUCHDOWN</i></div>
+    <div class="stamp cobalt" id="stCleave" style="right:9%; top:30%"><b>شَقّ!</b><i>CLEAVED IN TWO</i></div>
+    <div class="stamp" id="stShutter" style="left:50%; top:16%"><b>طراخ!</b><i>SHUTTER DOWN</i></div>
+  </div>
+</main>
+
+<footer class="fin">
+  <div class="ar">بالهنا والشفا</div>
+  <h2 class="riso-h">The End of the Reel</h2>
+  <span class="kicker">BAZOOKA · CAIRO · BEIRUT · OPEN TILL 4 AM</span>
+  <button type="button" id="rewindBtn">↺ REWIND THE REEL</button>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// options come from ?query, or #hash when embedded from a blob: URL in the single-file build
+const params = new URLSearchParams(location.search.slice(1) || location.hash.slice(1));
+const EMBED = params.has('embed');
+if (EMBED) document.documentElement.classList.add('embed');
+
+const lenis = EMBED ? null : new Lenis({ lerp: 0.09, smoothWheel: true });
+if (lenis) {
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const root = document.documentElement;
+
+/* ---------------------------------------------------------------------------
+   Live plate misregistration: the faster you scroll, the further the cobalt
+   and vermilion plates drift apart; at rest they snap back into register.
+   --------------------------------------------------------------------------- */
+const mis = { v: 26 };
+let lastY = scrollY;
+gsap.ticker.add(() => {
+  const dy = Math.abs(scrollY - lastY);
+  lastY = scrollY;
+  const target = Math.min(16, dy * 0.35);
+  if (target > mis.v) mis.v = target;
+  else mis.v += (target - mis.v) * 0.08;
+  root.style.setProperty('--mis', mis.v.toFixed(2) + 'px');
+});
+
+/* ---------------------------------------------------------------------------
+   Contraption 01 · Silkscreen roller intro
+   --------------------------------------------------------------------------- */
+if (EMBED) mis.v = 0;
+else gsap.timeline({ delay: 0.15 })
+  .to('#lpVermilion', { xPercent: 102, duration: 0.6, ease: 'power3.inOut' }, 0)
+  .to('#lpCobalt', { xPercent: -102, duration: 0.6, ease: 'power3.inOut' }, 0.28)
+  .to('#lpNile', { yPercent: -102, duration: 0.6, ease: 'power3.inOut' }, 0.56)
+  .fromTo('#heroTilt', { scale: 0.6, rotation: -14, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.9, ease: 'back.out(1.6)' }, 0.75)
+  .to(mis, { v: 0, duration: 1.2, ease: 'elastic.out(1, 0.35)' }, 0.9)
+  .set('#lithoIntro', { display: 'none' });
+
+gsap.to('#heroScope', { rotation: 360, duration: 38, ease: 'none', repeat: -1 });
+
+$('#scHero').addEventListener('pointermove', e => {
+  const nx = e.clientX / innerWidth - 0.5;
+  const ny = e.clientY / innerHeight - 0.5;
+  gsap.to('#heroTilt', { rotationY: nx * 16, rotationX: -ny * 12, duration: 0.5, overwrite: 'auto' });
+});
+
+/* ---------------------------------------------------------------------------
+   Initial states (the master timeline below only ever uses .to)
+   --------------------------------------------------------------------------- */
+gsap.set('#heroWrapImg', { filter: 'drop-shadow(14px 18px 0 rgba(13,19,38,0.92)) brightness(1) sepia(0) saturate(1)' });
+gsap.set('#drumMarquee', { filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.85)) brightness(1) grayscale(0)' });
+gsap.set('#scKiosk', { filter: 'brightness(1) saturate(1)' });
+gsap.set('#heroPress', { xPercent: -50, yPercent: -60, y: -innerHeight * 1.1, rotation: -18 });
+gsap.set('#heroExhaust', { scale: 0, autoAlpha: 0 });
+gsap.set('.steam', { xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 0 });
+gsap.set('#trail .band', { scaleX: 0 });
+gsap.set('.stamp', { autoAlpha: 0, scale: 2.6, rotation: -24 });
+gsap.set('#stShutter', { xPercent: -50 });
+
+gsap.set('.ana-title', { autoAlpha: 0, y: -40 });
+gsap.set('#slashLine', { clipPath: 'inset(0% 0% 100% 100%)' });
+gsap.set('.slice-item', { autoAlpha: 0, scale: 0.3, y: -60, rotation: -40 });
+gsap.set('#anaWrap', { y: -innerHeight, rotation: -50 });
+gsap.set('#knife', { x: innerWidth * 1.1, y: -innerHeight * 0.9, rotation: 180, xPercent: -50 });
+
+gsap.set('#embers', { xPercent: -50 });
+gsap.set('.dish-card', { autoAlpha: 0, rotationX: -90 });
+gsap.set('.dish-card:first-child', { autoAlpha: 1, rotationX: 0 });
+
+gsap.set('#matchFX .match', { x: -innerWidth * 0.3 });
+gsap.set('#matchFX .striker', { y: 120, autoAlpha: 0 });
+gsap.set('#matchFX .flame', { scale: 0 });
+gsap.set('#matchFX .spark', { scale: 0 });
+
+gsap.set('.mb-prod', { xPercent: -50, yPercent: 60, scale: 0.25, autoAlpha: 0 });
+gsap.set('#shutter', { yPercent: -101 });
+gsap.set('#receiptInner', { yPercent: -101 });
+
+gsap.set('#scNight', { autoAlpha: 0 });
+gsap.set('#nightHead', { autoAlpha: 0, x: -60 });
+gsap.set('.f-tray img', { x: -innerWidth, rotation: -30 });
+gsap.set('.f-wrap img', { y: -innerHeight, rotation: 40 });
+gsap.set('.f-box img', { x: -innerWidth * 0.5, y: -innerHeight * 0.4, rotation: -60 });
+gsap.set('.f-jallab img', { x: innerWidth * 0.6, rotation: 8 });
+gsap.set(['.f-toum img', '.f-pickle img'], { y: innerHeight * 0.45 });
+
+/* ---------------------------------------------------------------------------
+   Rotisserie orbit: 5 dishes circle the spit cone. The active dish swings
+   to the front-right of the cone; the rest recede behind it.
+   --------------------------------------------------------------------------- */
+const dishes = $$('.orb-dish');
+const orbit = { a: 0 };
+function layoutOrbit() {
+  const narrow = innerWidth < 760;
+  const R = narrow ? innerWidth * 0.32 : Math.min(innerWidth * 0.23, 380);
+  const present = narrow ? 0 : 0.95;
+  dishes.forEach((el, i) => {
+    const th = (i - orbit.a) * (Math.PI * 2 / 5) + present;
+    const depth = Math.cos(th);
+    let d = Math.abs(i - orbit.a) % 5;
+    d = Math.min(d, 5 - d);
+    const focus = Math.max(0, 1 - d);
+    gsap.set(el, {
+      xPercent: -50,
+      yPercent: -50,
+      x: Math.sin(th) * R,
+      y: depth * R * 0.22,
+      scale: 0.3 + 0.2 * (depth + 1) / 2 + 0.55 * focus,
+      zIndex: depth > 0.15 ? 6 : 2,
+      filter: `brightness(${(0.35 + 0.65 * Math.max(focus, (depth + 1) / 3)).toFixed(3)})`
+    });
+  });
+}
+layoutOrbit();
+
+const dots = $$('#dishDots span');
+function setDots() {
+  const k = Math.round(orbit.a);
+  dots.forEach((d, i) => d.classList.toggle('on', i === k));
+}
+
+/* ---------------------------------------------------------------------------
+   The master timeline. Each beat ends on a label; with SNAP on, one flick of
+   the wheel plays exactly one beat.
+   --------------------------------------------------------------------------- */
+const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.inOut' } });
+const HUD = {};
+let cur = 0;
+tl.addLabel('start', 0);
+HUD.start = 'STAGE 01 · THE SAROUKH';
+
+function beat(label, hud, dur, build) {
+  build(cur);
+  cur += dur;
+  tl.addLabel(label, cur);
+  HUD[label] = hud;
+}
+const amp = reduceMotion ? 0 : 1;
+function shake(t, a = 16, dur = 0.16) {
+  a *= amp;
+  tl.to('#world', {
+    keyframes: { x: [0, -a, a * 0.8, -a * 0.5, a * 0.25, 0], y: [0, a * 0.6, -a * 0.5, a * 0.3, -a * 0.1, 0], easeEach: 'none' },
+    duration: dur, ease: 'none'
+  }, t);
+}
+function stamp(sel, tIn, tOut) {
+  tl.to(sel, { autoAlpha: 1, scale: 1, rotation: -8, duration: 0.12, ease: 'back.out(2.4)' }, tIn);
+  if (tOut != null) tl.to(sel, { autoAlpha: 0, scale: 0.85, duration: 0.1, ease: 'power1.in' }, tOut);
+}
+
+/* ---- SCENE 1 · HERO ---- */
+beat('unpeel', 'STAGE 01 · FOIL TORNADO', 1, t => {
+  const fly = [
+    ['.hf1', -42, -40, -160], ['.hf2', -30, 45, 140], ['.hf3', 40, -42, 180],
+    ['.hg1', 45, -30, 220], ['.hg2', 44, 40, -200], ['.hg3', -40, 42, 200], ['.hg4', -46, -26, -230]
+  ];
+  fly.forEach(([s, x, y, r], i) => tl.to(s, { x: innerWidth * x / 100, y: innerHeight * y / 100, rotation: r, scale: 1.5, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, t + i * 0.035));
+  tl.to('#heroChilli', { x: innerWidth * 0.32, rotation: 30, scale: 1.3, autoAlpha: 0, duration: 0.6, ease: 'power2.in' }, t + 0.1)
+    .to('#heroRocket', { rotation: -6, scale: 0.92, duration: 0.6 }, t + 0.2)
+    .to('#heroScope', { scale: 1.5, opacity: 0.18, duration: 0.8 }, t)
+    .to('#heroSideL', { x: -18, rotation: -2, duration: 0.5, ease: 'back.out(2)' }, t + 0.1)
+    .to('#heroSideR', { x: 18, rotation: 2, duration: 0.5, ease: 'back.out(2)' }, t + 0.1)
+    .to('#heroWatermark', { scale: 1.08, duration: 0.8 }, t);
+});
+
+beat('clamp', 'STAGE 01 · CAST-IRON CLAMP', 1, t => {
+  tl.to('#heroPress', { y: 0, rotation: -4, duration: 0.42, ease: 'power4.in' }, t)
+    .to('#heroRocket', { scaleY: 0.78, scaleX: 1.04, duration: 0.08, ease: 'power2.out' }, t + 0.42)
+    .to('#heroWrapImg', { filter: 'drop-shadow(14px 18px 0 rgba(13,19,38,0.92)) brightness(0.72) sepia(0.45) saturate(1.6)', duration: 0.3 }, t + 0.42)
+    .to('#scHero', { backgroundColor: '#E4D3AE', duration: 0.3 }, t + 0.42);
+  shake(t + 0.42, 22, 0.2);
+  stamp('#stSear', t + 0.46, t + 1.02);
+  $$('.steam').forEach((s, i) => {
+    tl.to(s, { autoAlpha: 0.9, scale: 1.1, x: (i - 1) * innerWidth * 0.12, y: -innerHeight * 0.06, duration: 0.25, ease: 'power2.out' }, t + 0.46 + i * 0.04)
+      .to(s, { autoAlpha: 0, scale: 1.8, y: -innerHeight * 0.3, duration: 0.3, ease: 'power1.in' }, t + 0.72 + i * 0.04);
+  });
+});
+
+beat('launch', 'STAGE 02 · TOUCHDOWN', 2.25, t => {
+  // press springs off, the seared wrap re-inflates and ignites its shatta exhaust
+  tl.to('#heroPress', { y: -innerHeight * 1.2, rotation: 24, duration: 0.3, ease: 'power3.in' }, t)
+    .to('#heroRocket', { scaleY: 1, scaleX: 1, rotation: 0, scale: 1, duration: 0.18, ease: 'back.out(3)' }, t + 0.08)
+    .to('#heroExhaust', { autoAlpha: 1, scale: 1, duration: 0.18, ease: 'back.out(2)' }, t + 0.2)
+    .to('#heroExhaust', { scaleX: 1.6, scaleY: 1.25, duration: 0.3, ease: 'power1.in' }, t + 0.4)
+    .to(['#heroHeader', '#heroRibbonL', '#heroRibbonR', '#heroScope'], { autoAlpha: 0, y: 40, duration: 0.2 }, t + 0.25)
+    .to('#heroSideL', { x: -innerWidth * 0.3, autoAlpha: 0, duration: 0.25, ease: 'power2.in' }, t + 0.25)
+    .to('#heroSideR', { x: innerWidth * 0.3, autoAlpha: 0, duration: 0.25, ease: 'power2.in' }, t + 0.25)
+    .to('#heroWatermark', { autoAlpha: 0, duration: 0.25 }, t + 0.25);
+  shake(t + 0.3, 10, 0.3);
+  stamp('#stLaunch', t + 0.3, t + 0.66);
+  // lift-off along the wrap's own 2 o'clock axis
+  tl.to('#heroTilt', { x: innerWidth * 0.95, y: -innerHeight * 0.75, scale: 0.55, duration: 0.4, ease: 'power3.in' }, t + 0.5)
+    // exhaust plates streak along the flight path and swallow the poster
+    .to('#trail .b-v', { scaleX: 1, duration: 0.2, ease: 'power2.out' }, t + 0.8)
+    .to('#trail .b-c', { scaleX: 1, duration: 0.2, ease: 'power2.out' }, t + 0.86)
+    .to('#trail .b-n', { scaleX: 1, duration: 0.2, ease: 'power2.out' }, t + 0.92)
+    .to('#trail .b-n', { scaleY: 14, duration: 0.24, ease: 'power2.in' }, t + 1.04)
+    .set('#scHero', { autoAlpha: 0 }, t + 1.29)
+    .set('#trail', { autoAlpha: 0 }, t + 1.3)
+    .to('.ana-title', { autoAlpha: 1, y: 0, duration: 0.26, ease: 'back.out(2)' }, t + 1.32);
+
+  /* ---- SCENE 2 · ANATOMY: the rocket comes back down ---- */
+  tl.to('#anaWrap', { y: 0, rotation: 0, duration: 0.36, ease: 'power4.in' }, t + 1.4)
+    .to('#anaWrap', { scaleY: 0.86, scaleX: 1.05, duration: 0.06, yoyo: true, repeat: 1 }, t + 1.76);
+  shake(t + 1.76, 18, 0.18);
+  stamp('#stCrash', t + 1.78, t + 2.27);
+  tl.to('#knife', { x: innerWidth * 0.86, y: -innerHeight * 0.22, duration: 0.3, ease: 'power2.out' }, t + 1.9);
+});
+
+beat('chop', 'STAGE 02 · 5-SLICE CUTAWAY', 1.5, t => {
+  const cutX = [0.74, 0.62, 0.5, 0.38, 0.26];
+  cutX.forEach((cx, k) => {
+    const at = t + k * 0.26;
+    const sliceIdx = 4 - k;
+    tl.to('#knife', { x: innerWidth * cx, y: -innerHeight * 0.22, duration: 0.1, ease: 'power1.inOut' }, at)
+      .to('#knife', { y: innerHeight * 0.1, duration: 0.08, ease: 'power4.in' }, at + 0.1)
+      .to('#anaWrapClip', { clipPath: `inset(-30% ${(k + 1) * 20}% -30% -30%)`, duration: 0.02, ease: 'none' }, at + 0.18)
+      .to(`.slice-item:nth-child(${sliceIdx + 1})`, { autoAlpha: 1, scale: 1, y: 0, rotation: 0, duration: 0.22, ease: 'back.out(2.2)' }, at + 0.18)
+      .to('#knife', { y: -innerHeight * 0.22, duration: 0.08, ease: 'power2.out' }, at + 0.18);
+    shake(at + 0.18, 6, 0.08);
+  });
+  tl.to('#knife', { x: innerWidth * 0.92, y: -innerHeight * 0.55, rotation: 140, duration: 0.2 }, t + 1.3);
+});
+
+beat('cleave', 'TRANSITION · SWORD CLEAVE', 1.3, t => {
+  // knife cocks at the upper-right corner, then slashes the diagonal seam
+  tl.to('#knife', { x: innerWidth * 1.02, y: -innerHeight * 0.48, rotation: 225, scale: 1.3, duration: 0.25, ease: 'power2.out' }, t)
+    .set('#scDrum', { autoAlpha: 1 }, t)
+    .set('#slashLine', { autoAlpha: 1 }, t + 0.3)
+    .to('#slashLine', { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.14, ease: 'power4.in' }, t + 0.3)
+    .to('#knife', { x: -innerWidth * 0.2, y: innerHeight * 0.95, duration: 0.16, ease: 'power4.in' }, t + 0.3);
+  shake(t + 0.44, 26, 0.24);
+  stamp('#stCleave', t + 0.46, t + 1.0);
+  tl.to('#slashLine', { autoAlpha: 0, duration: 0.2 }, t + 0.62)
+    .to('.cut-half.tl', { xPercent: -70, yPercent: -95, rotation: -14, duration: 0.6, ease: 'power3.in' }, t + 0.5)
+    .to('.cut-half.br', { xPercent: 70, yPercent: 95, rotation: 12, duration: 0.6, ease: 'power3.in' }, t + 0.56)
+    .fromTo('#cone', { scale: 0.7, y: 80 }, { scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.5)', immediateRender: false }, t + 0.66)
+    .fromTo('.orb-dish', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, immediateRender: false }, t + 0.8)
+    .fromTo('.drum-col', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.35, ease: 'back.out(1.6)', immediateRender: false }, t + 0.85)
+    .set('#scAnatomy', { autoAlpha: 0 }, t + 1.28);
+});
+
+/* ---- SCENE 3 · ROTISSERIE ORBIT ---- */
+const cards = $$('.dish-card');
+for (let i = 1; i < 5; i++) {
+  beat('spit' + (i + 1), 'STAGE 03 · SPIT ' + String(i + 1).padStart(2, '0') + ' / 05', 0.8, t => {
+    tl.to(orbit, { a: i, duration: 0.6, ease: 'power3.inOut', onUpdate: () => { layoutOrbit(); setDots(); } }, t)
+      .to(cards[i - 1], { rotationX: 90, autoAlpha: 0, duration: 0.25, ease: 'power2.in' }, t + 0.05)
+      .to(cards[i], { rotationX: 0, autoAlpha: 1, duration: 0.3, ease: 'back.out(1.8)' }, t + 0.3)
+      .to('#embers', { scale: 1.18, duration: 0.15, yoyo: true, repeat: 1 }, t + 0.2)
+      .to('#tileBackdrop', { xPercent: -1.2 * i, duration: 0.6 }, t);
+  });
+}
+HUD.cleave = 'STAGE 03 · SPIT 01 / 05';
+
+beat('blackout', 'TRANSITION · POWER CUT & MATCH STRIKE', 1.5, t => {
+  tl.to('#drumBlackout', { keyframes: { opacity: [0, 0.7, 0.15, 0.85, 0.4, 0.95], easeEach: 'none' }, duration: 0.3, ease: 'none' }, t)
+    .to('#drumMarquee', { filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.85)) brightness(0.2) grayscale(0.8)', duration: 0.3, ease: 'steps(4)' }, t)
+    .to('#powerCut', { autoAlpha: 1, duration: 0.05 }, t + 0.25)
+    .set('#matchFX', { autoAlpha: 1 }, t + 0.32)
+    .to('#matchFX .striker', { y: 0, autoAlpha: 1, duration: 0.2, ease: 'back.out(2)' }, t + 0.32)
+    .to('#matchFX .match', { x: 0, duration: 0.14, ease: 'power4.in' }, t + 0.55);
+  $$('#matchFX .spark').forEach((s, i) => {
+    const ang = -Math.PI * (0.1 + 0.8 * i / 7);
+    tl.to(s, { scale: 1, x: Math.cos(ang) * 140, y: Math.sin(ang) * 110, duration: 0.12, ease: 'power2.out' }, t + 0.68)
+      .to(s, { scale: 0, duration: 0.1 }, t + 0.8);
+  });
+  shake(t + 0.68, 8, 0.12);
+  tl.to('#matchFX .flame', { scale: 1, duration: 0.14, ease: 'back.out(3)' }, t + 0.7)
+    .to('#matchFX .flame', { scaleY: 1.3, scaleX: 0.85, duration: 0.08, yoyo: true, repeat: 3 }, t + 0.84)
+    // the flame blooms into a hole burnt straight through to the sunlit kiosk
+    .set('#flameRing', { autoAlpha: 1 }, t + 1.0)
+    .to('#scKiosk', { clipPath: 'circle(150% at 50% 58%)', duration: 0.45, ease: 'power2.in' }, t + 1.0)
+    .to('#flameRing', { width: Math.hypot(innerWidth, innerHeight) * 3, height: Math.hypot(innerWidth, innerHeight) * 3, margin: -Math.hypot(innerWidth, innerHeight) * 1.5, duration: 0.45, ease: 'power2.in' }, t + 1.0)
+    .to(['#matchFX', '#powerCut'], { autoAlpha: 0, duration: 0.15 }, t + 1.1)
+    .set(['#flameRing', '#scDrum'], { autoAlpha: 0 }, t + 1.46);
+});
+
+/* ---- SCENE 4 · MATCHBOX KIOSK ---- */
+beat('boxes', 'STAGE 04 · MATCHBOX KIOSK', 1.5, t0 => {
+  // one strike sets off the whole shelf, box to box like a fuse
+  $$('.mb').forEach((mb, i) => {
+    const q = s => mb.querySelector(s);
+    const t = t0 + 0.05 + i * 0.2;
+    tl.set(q('.mb-spark'), { autoAlpha: 1, scale: 0.2 }, t)
+      .to(q('.mb-spark'), { scale: 3, duration: 0.2, ease: 'power2.out' }, t)
+      .to(q('.mb-spark'), { autoAlpha: 0, duration: 0.08 }, t + 0.14)
+      .to(q('.mb-sleeve'), { keyframes: { rotation: [0, -4, 3, 0], easeEach: 'none' }, duration: 0.14, ease: 'none' }, t)
+      .to(q('.mb-drawer'), { xPercent: 34, duration: 0.25, ease: 'power3.out' }, t + 0.12)
+      .to(q('.mb-prod'), { yPercent: 0, scale: 1, autoAlpha: 1, duration: 0.32, ease: 'back.out(2.4)' }, t + 0.2)
+      .to(q('.mb-prod'), { rotation: i % 2 ? 4 : -4, duration: 0.2 }, t + 0.45);
+    shake(t + 0.2, 5, 0.08);
+  });
+});
+
+/* ---- TRANSITION · NIGHT SHUTTER ---- */
+beat('shutter', 'TRANSITION · 3 AM SHUTTER', 1, t => {
+  tl.to('#scKiosk', { filter: 'brightness(0.45) saturate(0.6)', duration: 0.3 }, t)
+    .to('#shutter', { yPercent: 0, duration: 0.45, ease: 'bounce.out' }, t + 0.1);
+  shake(t + 0.28, 20, 0.2);
+  stamp('#stShutter', t + 0.3, null);
+  tl.set('#scNight', { autoAlpha: 1 }, t + 0.99)
+    .set('#scKiosk', { autoAlpha: 0 }, t + 0.99);
+});
+
+/* ---- SCENE 5 · NIGHT WINDOW ---- */
+beat('feast', 'STAGE 05 · THE NIGHT WINDOW', 1.9, t0 => {
+  tl.to('#stShutter', { autoAlpha: 0, duration: 0.1 }, t0)
+    .to('#shutter', { keyframes: { yPercent: [0, -8, -4, -101], easeEach: 'power2.inOut' }, duration: 0.6, ease: 'none' }, t0)
+    .fromTo('#nightBg', { scale: 1.18 }, { scale: 1, duration: 0.8, ease: 'power2.out', immediateRender: false }, t0 + 0.1)
+    .to('#nightHead', { autoAlpha: 1, x: 0, duration: 0.35, ease: 'back.out(1.8)' }, t0 + 0.5);
+  const t = t0 + 0.5;
+  // tray skids down the steel counter like a bartender's slide
+  tl.to('.f-tray img', { x: 0, rotation: 0, duration: 0.4, ease: 'power3.out' }, t)
+    .to('.f-tray img', { rotation: 3, duration: 0.08, yoyo: true, repeat: 1 }, t + 0.38)
+    // the saroukh drops onto the tray
+    .to('.f-wrap img', { y: 0, rotation: -6, duration: 0.3, ease: 'bounce.out' }, t + 0.42)
+    // the carton is tossed in from the left
+    .to('.f-box img', { x: 0, y: 0, rotation: -4, duration: 0.36, ease: 'back.out(1.6)' }, t + 0.62)
+    // the jallab slides in from the right
+    .to('.f-jallab img', { x: 0, rotation: 0, duration: 0.36, ease: 'power3.out' }, t + 0.72)
+    // toum and torshi pop up from behind the counter
+    .to('.f-toum img', { y: 0, duration: 0.3, ease: 'back.out(2.2)' }, t + 0.86)
+    .to('.f-pickle img', { y: 0, duration: 0.3, ease: 'back.out(2.2)' }, t + 0.94);
+  shake(t + 0.6, 8, 0.12);
+});
+
+beat('receipt', 'STAGE 05 · YOUR TICKET', 1, t => {
+  tl.to('#receiptInner', { yPercent: 0, duration: 0.7, ease: 'steps(16)' }, t);
+  // on phones the ticket needs the headline's spot
+  if (innerWidth < 760) tl.to('#nightHead', { autoAlpha: 0, y: -30, duration: 0.2 }, t);
+});
+// keep the timeline as long as its last label so every snap point stays inside 0–1
+tl.set({}, {}, cur);
+
+/* ---------------------------------------------------------------------------
+   One pinned theatre drives everything.
+   --------------------------------------------------------------------------- */
+const hudStage = $('#hudStage');
+const hudBar = $('#hudBar');
+const SCROLL_PER_UNIT = 0.85; // viewport heights of scroll per timeline second
+let snapOn = !reduceMotion;
+let st = null;
+
+function nearestLabel() {
+  const now = tl.time();
+  let label = 'start', best = Infinity;
+  for (const [name, t] of Object.entries(tl.labels)) {
+    const d = Math.abs(t - now);
+    if (d < best) { best = d; label = name; }
+  }
+  return label;
+}
+
+// HUD follows the (scrub-smoothed) timeline, not the raw scroll position
+tl.eventCallback('onUpdate', () => {
+  const label = nearestLabel();
+  if (EMBED) {
+    parent.postMessage({ bz: true, cmd: 'state', time: tl.time(), label, hud: HUD[label] }, '*');
+    return;
+  }
+  hudBar.style.width = (tl.progress() * 100).toFixed(1) + '%';
+  if (HUD[label] && hudStage.textContent !== HUD[label]) hudStage.textContent = HUD[label];
+});
+
+if (EMBED) setupEmbed(); else setupScroll();
+
+/* ---------------------------------------------------------------------------
+   Embed driver: the design doc's labs post {cmd:'seek'|'play'} messages.
+   --------------------------------------------------------------------------- */
+function setupEmbed() {
+  let driver = null;
+  addEventListener('message', e => {
+    const m = e.data;
+    if (!m || !m.bz) return;
+    if (driver) driver.kill();
+    if (m.cmd === 'seek') driver = gsap.to(tl, { time: m.time, duration: m.instant ? 0 : 0.35, ease: 'power2.out' });
+    if (m.cmd === 'play') { tl.time(m.from); driver = tl.tweenFromTo(m.from, m.to, { ease: 'none' }); }
+  });
+  parent.postMessage({ bz: true, cmd: 'ready', labels: tl.labels, duration: tl.duration(), hud: HUD }, '*');
+  const at = params.get('at');
+  tl.time(at && tl.labels[at] != null ? tl.labels[at] : 0);
+}
+
+function setupScroll() {
+  st = ScrollTrigger.create({
+    trigger: '#theatre',
+    start: 'top top',
+    end: () => '+=' + Math.round(tl.duration() * innerHeight * SCROLL_PER_UNIT),
+    pin: true,
+    scrub: 0.5,
+    animation: tl
+  });
+
+  /* ---------------------------------------------------------------------------
+     Beat stepper: inside the theatre, one flick of the wheel (or one swipe /
+     arrow key) glides to the next beat. A flick that lands mid-beat is never
+     dropped: it chains on to the beat after the one in flight. Trackpad
+     momentum counts as the same gesture; a fresh swipe on top of it doesn't.
+     Past the last beat, normal scroll takes over so the FIN card scrolls in.
+     --------------------------------------------------------------------------- */
+  const beats = Object.entries(tl.labels).sort((a, b) => a[1] - b[1]);
+  const beatY = i => st.start + (st.end - st.start) * (beats[i][1] / tl.duration());
+  let lastInput = 0;
+  let lastAbs = 0;
+  let lastDir = 0;
+  let lastStepAt = 0;
+  // Lenis reports its current position mid-glide, so remember where we're headed
+  let headingTo = -1;
+  let arriveAt = 0;
+
+  function nearestBeat() {
+    const p = (lenis.targetScroll - st.start) / (st.end - st.start) * tl.duration();
+    let k = 0;
+    beats.forEach(([, t], i) => { if (Math.abs(t - p) < Math.abs(beats[k][1] - p)) k = i; });
+    return k;
+  }
+  function inTheatre(dir) {
+    const y = lenis.targetScroll;
+    if (y < st.start - 2 || y > st.end + 2) return false;
+    // let the user leave past the last beat
+    if (dir > 0 && nearestBeat() === beats.length - 1 && y >= st.end - 2) return false;
+    return true;
+  }
+  function step(dir) {
+    const from = performance.now() < arriveAt ? headingTo : nearestBeat();
+    const to = Math.max(0, Math.min(beats.length - 1, from + dir));
+    if (to === from) return;
+    const span = Math.abs(beats[to][1] - beats[from][1]);
+    const duration = Math.min(1.4, 0.55 + span * 0.42);
+    lastStepAt = performance.now();
+    headingTo = to;
+    arriveAt = lastStepAt + duration * 1000;
+    lenis.scrollTo(beatY(to), {
+      duration,
+      easing: x => 1 - Math.pow(1 - x, 3),
+      lock: true,
+      force: true
+    });
+  }
+  function intent(e, dir) {
+    if (!snapOn || !inTheatre(dir)) return false;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return true;
+  }
+
+  addEventListener('wheel', e => {
+    const dir = Math.sign(e.deltaY);
+    if (!dir || !intent(e, dir)) return;
+    const now = e.timeStamp; // input time, unaffected by busy frames
+    const abs = Math.abs(e.deltaY);
+    const sinceStep = now - lastStepAt;
+    const fresh =
+      (now - lastInput > 140 && sinceStep > 180) ||            // the wheel went quiet: new flick
+      dir !== lastDir ||                                        // reversed direction
+      (abs > lastAbs * 1.8 && abs > 12 && sinceStep > 250) ||   // new swipe on top of decaying momentum
+      (sinceStep > 500 && abs >= lastAbs && abs >= 40);         // still pushing hard: keep going
+    lastInput = now;
+    lastAbs = abs;
+    lastDir = dir;
+    if (fresh && abs > 2) {
+      step(dir);
+      lastStepAt = now;
+    }
+  }, { passive: false, capture: true });
+
+  addEventListener('keydown', e => {
+    const map = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowUp: -1, PageUp: -1 };
+    const dir = map[e.key];
+    if (!dir || e.target.closest('button, a, input')) return;
+    if (!intent(e, dir)) return;
+    if (!e.repeat || performance.now() - lastStepAt > 300) step(dir);
+  }, { capture: true });
+
+  let touchY = null;
+  addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (touchY == null) return;
+    const dir = Math.sign(touchY - e.touches[0].clientY);
+    if (dir) intent(e, dir);
+  }, { passive: false });
+  addEventListener('touchend', e => {
+    if (touchY == null) return;
+    const dy = touchY - e.changedTouches[0].clientY;
+    touchY = null;
+    if (Math.abs(dy) > 30 && snapOn && inTheatre(Math.sign(dy))) step(Math.sign(dy));
+  });
+
+  const snapBtn = $('#snapBtn');
+  snapBtn.setAttribute('aria-pressed', String(snapOn));
+  snapBtn.addEventListener('click', () => {
+    snapOn = !snapOn;
+    snapBtn.setAttribute('aria-pressed', String(snapOn));
+  });
+
+  $('#rewindBtn').addEventListener('click', () => lenis.scrollTo(0, { duration: 2.4 }));
+  addEventListener('load', () => ScrollTrigger.refresh());
+}
+
+/* ---------------------------------------------------------------------------
+   Click interactions
+   --------------------------------------------------------------------------- */
+$$('.mb').forEach(mb => {
+  mb.addEventListener('click', () => {
+    const img = mb.querySelector('.mb-prod img');
+    gsap.fromTo(img, { scale: 1.25, rotation: -10 }, { scale: 1, rotation: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)' });
+  });
+});
+
+$('#tearBtn').addEventListener('click', () => {
+  gsap.timeline()
+    .fromTo('#paidStamp', { xPercent: -50, yPercent: -50, scale: 2.6, rotation: -30, opacity: 0 }, { scale: 1, rotation: -12, opacity: 1, duration: 0.3, ease: 'back.out(2.5)' })
+    .to('#receiptInner', { rotation: -6, y: 30, duration: 0.45, ease: 'back.out(2)' }, 0.1)
+    .fromTo('.feast > div:not(.f-tray) img', { yPercent: -10 }, { yPercent: 0, duration: 0.45, stagger: 0.05, ease: 'bounce.out' }, 0.15);
+});
+
+</script>
+</body>
+</html>

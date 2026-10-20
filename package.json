@@ -1,0 +1,12 @@
+{
+  "name": "bazooka-design",
+  "private": true,
+  "description": "BAZOOKA landing page design prototype",
+  "scripts": {
+    "build:share": "python design/scripts/build_share.py",
+    "test": "node design/scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

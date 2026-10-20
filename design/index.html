@@ -1,0 +1,1762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BAZOOKA (بازوكا) — Retro Arabic Pop Art · Live Asset & Transition Spec</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230D1326'/%3E%3Cpath d='M8,8 H56 V56 H8 Z' fill='none' stroke='%23D99B26' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23D9232E'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23EBE1C9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Chivo+Mono:ital,wght@0,400;0,600;0,800;1,400&family=Dela+Gothic+One&family=Reem+Kufi:wght@600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root {
+  --nile: #0D1326;
+  --nile-m: #16203D;
+  --sand: #EBE1C9;
+  --sand-d: #DCD0B2;
+  --cobalt: #1B3BF5;
+  --vermilion: #D9232E;
+  --pistachio: #0D9463;
+  --ochre: #D99B26;
+  --foil: #D8E0E8;
+
+  --f-kufi: 'Reem Kufi', sans-serif;
+  --f-ruqaa: 'Aref Ruqaa', serif;
+  --f-poster: 'Dela Gothic One', sans-serif;
+  --f-architectural: 'Syne', sans-serif;
+  --f-mono: 'Chivo Mono', monospace;
+
+  --rx: 3px;
+  --ry: 2px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--sand);
+  color: var(--nile);
+  font-family: var(--f-architectural), sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Subtle Lithograph Paper Grain & Halftone Screen Overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900;
+  background-image:
+    radial-gradient(rgba(13, 19, 38, 0.055) 1px, transparent 1px),
+    radial-gradient(rgba(217, 35, 46, 0.03) 1px, transparent 1px);
+  background-size: 6px 6px, 14px 14px;
+  background-position: 0 0, 3px 3px;
+}
+
+.kufic-border {
+  height: 18px;
+  background-color: var(--nile);
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      var(--ochre) 0 12px,
+      var(--nile) 12px 18px,
+      var(--vermilion) 18px 30px,
+      var(--nile) 30px 36px,
+      var(--cobalt) 36px 48px,
+      var(--nile) 48px 54px
+    );
+  border-top: 2px solid var(--nile);
+  border-bottom: 2px solid var(--nile);
+}
+
+.riso-title {
+  font-family: var(--f-poster);
+  text-transform: uppercase;
+  color: var(--nile);
+  position: relative;
+  display: inline-block;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  text-shadow:
+    calc(var(--rx) * -1) calc(var(--ry) * -1) 0 var(--cobalt),
+    var(--rx) var(--ry) 0 var(--vermilion);
+}
+.dark-sec .riso-title {
+  color: var(--sand);
+  text-shadow:
+    calc(var(--rx) * -1.2) calc(var(--ry) * -1.2) 0 var(--cobalt),
+    calc(var(--rx) * 1.2) calc(var(--ry) * 1.2) 0 var(--vermilion);
+}
+
+.cinema-ribbon {
+  display: inline-block;
+  background: var(--vermilion);
+  color: var(--sand);
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  padding: 4px 18px 6px;
+  border: 2.5px solid var(--nile);
+  transform: skewY(-5deg) rotate(-1deg);
+  box-shadow: 5px 5px 0 var(--cobalt);
+}
+
+.reg-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Sticky Top Press Bar */
+.press-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--nile);
+  color: var(--sand);
+  border-bottom: 3px solid var(--ochre);
+  padding: 10px clamp(16px, 3.5vw, 44px);
+}
+.press-nav-in {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--sand);
+}
+.brand-lockup .kufi-box {
+  background: var(--vermilion);
+  color: var(--sand);
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: 1.3rem;
+  padding: 2px 12px;
+  border: 2px solid var(--ochre);
+}
+.brand-lockup .latin-id {
+  font-family: var(--f-poster);
+  font-size: 0.92rem;
+  letter-spacing: 0.05em;
+}
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.nav-links a {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--sand);
+  background: var(--nile-m);
+  border: 1.5px solid rgba(235, 225, 201, 0.28);
+  padding: 6px 10px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.nav-links a:hover {
+  background: var(--cobalt);
+  border-color: var(--sand);
+}
+.nav-links a.hl-pistachio {
+  background: var(--pistachio);
+  border-color: var(--ochre);
+}
+.nav-links a.hl-vermilion {
+  background: var(--vermilion);
+  border-color: var(--ochre);
+}
+.nav-links a.hl-ochre {
+  background: var(--ochre);
+  color: var(--nile);
+  border-color: var(--sand);
+  font-weight: 800;
+}
+
+.wrap {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3.5vw, 44px);
+}
+
+.sec {
+  padding: 68px 0;
+  border-bottom: 3px solid var(--nile);
+  position: relative;
+}
+.sec.dark-sec {
+  background: var(--nile);
+  color: var(--sand);
+  border-bottom-color: var(--ochre);
+}
+.sec-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: end;
+  margin-bottom: 40px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid currentColor;
+}
+@media (max-width: 860px) {
+  .sec-header { grid-template-columns: 1fr; }
+}
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  background: var(--nile);
+  color: var(--ochre);
+  border: 1.5px solid var(--ochre);
+}
+.dark-sec .meta-tag {
+  background: var(--vermilion);
+  color: var(--sand);
+}
+.sec-header h2 {
+  font-size: clamp(2.1rem, 4.8vw, 3.8rem);
+  margin-top: 12px;
+}
+
+/* Cover Poster Layout */
+.cover-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr);
+  gap: 36px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .cover-grid { grid-template-columns: 1fr; }
+}
+.poster-manifesto {
+  background: var(--nile);
+  color: var(--sand);
+  border: 3px solid var(--nile);
+  padding: 26px;
+  position: relative;
+  box-shadow: 10px 10px 0 var(--vermilion), 20px 20px 0 var(--nile);
+}
+.poster-manifesto::after {
+  content: 'طباعة حجرية · ١٩٦٨ · بيروت - القاهرة';
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--f-kufi);
+  font-size: 0.8rem;
+  color: var(--ochre);
+}
+.bilingual-lockup {
+  margin: 18px 0 20px;
+  border-top: 2px solid var(--ochre);
+  border-bottom: 2px solid var(--ochre);
+  padding: 16px 0;
+}
+.bilingual-lockup .ar-giant {
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: clamp(3rem, 6.2vw, 4.8rem);
+  line-height: 0.92;
+  color: var(--sand);
+  text-shadow: -4px -3px 0 var(--cobalt), 4px 3px 0 var(--vermilion);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bilingual-lockup .en-giant {
+  font-family: var(--f-poster);
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  line-height: 0.95;
+  color: var(--ochre);
+  letter-spacing: 0.02em;
+  margin-top: 6px;
+}
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 0.8rem;
+}
+.diff-table th, .diff-table td {
+  border: 1.5px solid rgba(235, 225, 201, 0.25);
+  padding: 7px 9px;
+  text-align: left;
+}
+.diff-table th {
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  color: var(--ochre);
+  background: rgba(255,255,255,0.04);
+}
+
+/* Interactive Master Contraption Simulator */
+.sim-frame {
+  border: 3px solid var(--nile);
+  background: var(--nile);
+  box-shadow: 12px 12px 0 var(--cobalt);
+}
+.sim-top {
+  padding: 10px 16px;
+  background: var(--nile-m);
+  color: var(--sand);
+  border-bottom: 2px solid var(--ochre);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+}
+/* Reels: the real prototype (?embed) rendered at 1440x900 and scaled to fit */
+.reel {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--nile);
+}
+.reel iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 900px;
+  border: 0;
+  transform-origin: 0 0;
+}
+.sim-bar {
+  padding: 12px 16px;
+  background: var(--nile);
+  border-top: 2px solid var(--ochre);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sim-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sim-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--vermilion);
+  cursor: pointer;
+}
+.sim-tabs {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+@media (max-width: 720px) {
+  .sim-tabs { grid-template-columns: repeat(4, 1fr); }
+}
+.sim-tab {
+  font-family: var(--f-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 7px 5px;
+  background: var(--nile-m);
+  color: var(--sand);
+  border: 1.5px solid rgba(235, 225, 201, 0.3);
+  cursor: pointer;
+  text-align: center;
+}
+.sim-tab.active {
+  background: var(--vermilion);
+  border-color: var(--ochre);
+  color: #fff;
+}
+
+.btn-litho {
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 14px;
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 2px solid var(--nile);
+  box-shadow: 3px 3px 0 var(--nile);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-litho:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--nile);
+}
+.btn-litho.cobalt { background: var(--cobalt); }
+.btn-litho.ochre { background: var(--ochre); color: var(--nile); }
+.btn-litho.pistachio { background: var(--pistachio); }
+
+/* ============================================================================
+   PROCESSED WEBP CUTOUT & SCENE VAULT
+   ============================================================================ */
+.vault-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: var(--nile-m);
+  padding: 12px 18px;
+  border: 2px solid var(--ochre);
+}
+.vault-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 18px;
+}
+.vault-card {
+  border: 3px solid var(--ochre);
+  background: var(--nile-m);
+  box-shadow: 6px 6px 0 #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.vault-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--vermilion);
+}
+.vault-stage {
+  height: 175px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 2px solid var(--ochre);
+}
+.vault-grid[data-bg="checker"] .vault-stage {
+  background-color: #1A233A;
+  background-image:
+    linear-gradient(45deg, #25314F 25%, transparent 25%),
+    linear-gradient(-45deg, #25314F 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #25314F 75%),
+    linear-gradient(-45deg, transparent 75%, #25314F 75%);
+  background-size: 18px 18px;
+  background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+}
+.vault-grid[data-bg="sand"] .vault-stage {
+  background: var(--sand);
+}
+.vault-grid[data-bg="nile"] .vault-stage {
+  background: var(--nile);
+}
+.vault-stage img {
+  max-width: 92%;
+  max-height: 150px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(5px 7px 0 rgba(13, 19, 38, 0.75));
+}
+.vault-stage img.scene-thumb {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+}
+.vault-meta {
+  padding: 10px 12px;
+  font-size: 0.78rem;
+}
+.vault-meta code {
+  font-family: var(--f-mono);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--ochre);
+  display: block;
+}
+.vault-meta span {
+  font-family: var(--f-mono);
+  font-size: 0.66rem;
+  opacity: 0.8;
+}
+
+/* Silkscreen Ink Plates */
+.ink-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.ink-plate {
+  border: 3px solid var(--nile);
+  background: var(--sand);
+  box-shadow: 6px 6px 0 var(--nile);
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.ink-plate:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--vermilion);
+}
+.ink-well {
+  height: 110px;
+  border-bottom: 3px solid var(--nile);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ink-well .ar-callig {
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: 1.55rem;
+  line-height: 1;
+  align-self: flex-end;
+  background: var(--sand);
+  color: var(--nile);
+  padding: 3px 9px;
+  border: 2px solid var(--nile);
+}
+.ink-meta { padding: 12px 14px; color: var(--nile); }
+.ink-meta b { display: block; font-family: var(--f-poster); font-size: 0.84rem; text-transform: uppercase; }
+.ink-meta code { font-family: var(--f-mono); font-size: 0.74rem; font-weight: 700; color: var(--vermilion); }
+.ink-meta p { font-size: 0.76rem; margin-top: 4px; }
+
+/* Contraption & Transition Lab Cards */
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 410px), 1fr));
+  gap: 24px;
+}
+.lab-card {
+  background: var(--sand);
+  color: var(--nile);
+  border: 3px solid var(--nile);
+  box-shadow: 8px 8px 0 var(--nile);
+  display: flex;
+  flex-direction: column;
+}
+.dark-sec .lab-card {
+  box-shadow: 8px 8px 0 var(--ochre);
+}
+.lab-grid.reels {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+}
+.lab-card .reel { border-bottom: 2px solid var(--nile); }
+.lab-head {
+  padding: 12px 16px;
+  background: var(--nile);
+  color: var(--sand);
+  border-bottom: 2.5px solid var(--nile);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lab-head h4 {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ochre);
+}
+.lab-stage {
+  position: relative;
+  height: 280px;
+  background: var(--sand-d);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lab-scrub {
+  padding: 8px 14px;
+  background: var(--sand);
+  border-top: 2px solid var(--nile);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.lab-scrub input[type="range"] {
+  flex: 1;
+  accent-color: var(--cobalt);
+  cursor: pointer;
+}
+.lab-foot {
+  padding: 12px 16px;
+  border-top: 2px solid var(--nile);
+  font-size: 0.82rem;
+  background: #F4ECE0;
+}
+.lab-foot dl {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 4px 10px;
+}
+.lab-foot dt {
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--cobalt);
+}
+
+/* Nano Banana Pro Prompts Studio */
+.prompt-banner {
+  background: var(--nile);
+  color: var(--sand);
+  border: 3px solid var(--nile);
+  box-shadow: 10px 10px 0 var(--vermilion);
+  padding: 24px;
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .prompt-banner { grid-template-columns: 1fr; }
+}
+.pr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 410px), 1fr));
+  gap: 20px;
+}
+.pr-box {
+  background: #F4ECE0;
+  border: 3px solid var(--nile);
+  box-shadow: 6px 6px 0 var(--nile);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+.pr-box.bonus {
+  border-color: var(--cobalt);
+  box-shadow: 7px 7px 0 var(--vermilion);
+}
+.pr-stripe {
+  height: 8px;
+  background: linear-gradient(90deg, var(--cobalt) 0 33%, var(--vermilion) 33% 66%, var(--pistachio) 66% 100%);
+  border-bottom: 2px solid var(--nile);
+}
+.pr-top {
+  padding: 14px 16px 10px;
+  border-bottom: 1.5px dashed rgba(13, 19, 38, 0.25);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.pr-thumb {
+  width: 68px;
+  height: 68px;
+  border: 2px solid var(--nile);
+  background: var(--nile);
+  object-fit: contain;
+  flex-shrink: 0;
+  padding: 4px;
+}
+.pr-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.pr-badge {
+  font-family: var(--f-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border: 1.5px solid var(--nile);
+  background: var(--sand);
+}
+.pr-badge.live { background: var(--pistachio); color: #fff; }
+.pr-badge.new-p { background: var(--vermilion); color: #fff; }
+.pr-badge.cutout { background: var(--ochre); color: var(--nile); }
+.pr-badge.scene { background: var(--cobalt); color: var(--sand); }
+.pr-top h3 {
+  font-family: var(--f-poster);
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+.pr-top .pr-slot {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  color: var(--cobalt);
+  margin-top: 4px;
+  font-weight: 700;
+}
+.pr-dl {
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 5px 10px;
+  font-size: 0.8rem;
+}
+.pr-dl dt {
+  font-family: var(--f-mono);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #554D3E;
+}
+.pr-dl dt.cam {
+  background: var(--cobalt);
+  color: var(--sand);
+  padding: 2px 5px;
+  align-self: start;
+}
+.pr-foot {
+  padding: 10px 16px;
+  background: var(--sand-d);
+  border-top: 2px solid var(--nile);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pr-foot code {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 150%);
+  background: var(--nile);
+  color: var(--ochre);
+  border: 2.5px solid var(--ochre);
+  padding: 10px 20px;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: 0.8rem;
+  box-shadow: 6px 6px 0 var(--vermilion);
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.1, 1);
+  z-index: 1000;
+}
+.toast.show { transform: translate(-50%, 0); }
+.hidden-copy { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+
+<div class="kufic-border" aria-hidden="true"></div>
+
+<header class="press-nav">
+  <div class="press-nav-in">
+    <a class="brand-lockup" href="#overview">
+      <span class="reg-mark">⊕</span>
+      <span class="kufi-box">بازوكا</span>
+      <span class="latin-id">BAZOOKA · LIVE ASSET &amp; TRANSITION SPEC v4.0</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#overview">00 · Live Simulator</a>
+      <a href="#vault" class="hl-pistachio">01 · Processed WebP Vault (29)</a>
+      <a href="#palette">02 · Inks &amp; Riso Type</a>
+      <a href="#contraptions">03 · Contraptions &amp; Section Transitions</a>
+      <a href="#prompts" class="hl-vermilion">04 · All 18 Prompts (100% Live)</a>
+      <a href="prototype.html" target="_blank" rel="noopener" class="hl-ochre">Launch Full Scroll Prototype ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ================= 00 · MANIFESTO & LIVE CONTRAPTION SIMULATOR (WITH ALL 29 REAL ASSETS!) ================= -->
+  <section class="sec" id="overview">
+    <div class="wrap">
+      <div class="cover-grid">
+        <div class="poster-manifesto">
+          <span class="meta-tag" style="background:var(--pistachio); color:#fff">✓ All 20 Raw Renders Processed → 29 Transparent WebP Sprites &amp; Scenes</span>
+          <div class="bilingual-lockup">
+            <div class="ar-giant">
+              <span>صاروخ</span>
+              <span style="font-size:1.6rem; background:var(--vermilion); padding:4px 12px; border:2px solid var(--ochre)">عالفحم</span>
+              <span>بازوكا</span>
+            </div>
+            <div class="en-giant">29 LIVE SPRITES + SECTION CLEAVES</div>
+          </div>
+          <p style="font-size:0.92rem; opacity:0.92">
+            All 20 Nano Banana Pro renders in <code>/assets</code> (Phase 1 + Phase 2 Bonus) have been processed via border-seeded flood-fill + 2D connected-component splitting (<code>design/scripts/cutouts.py</code>) into <strong>29 crisp WebP cutouts and 16:9 scenes</strong>—including 5 split cross-section pinwheels (<code>slice-1..5.webp</code>) and 4 split flying garnish shrapnel sprites (<code>garnish-1..4.webp</code>).
+          </p>
+
+          <table class="diff-table">
+            <thead>
+              <tr><th>Transition</th><th>Mechanic</th><th>Real WebP Assets Used</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>01 · Iron Clamp &amp; Rocket Launch</b></td>
+                <td>The press slams down onto the wrap (طَشّ! + steam), then the saroukh lifts off on a shatta exhaust while three riso plates streak along its flight path and swallow the poster</td>
+                <td><code>iron-press.webp</code>, <code>chilli-splash.webp</code>, <code>saroukh-hero.webp</code></td>
+              </tr>
+              <tr>
+                <td><b>02 · Touchdown &amp; 5-Slice Chop</b></td>
+                <td>The rocket crash-lands in the Anatomy scene and the knife chops it right-to-left into the five real cross-section slices</td>
+                <td><code>knife.webp</code>, <code>slice-1..5.webp</code></td>
+              </tr>
+              <tr>
+                <td><b>03 · Sword Slash Cleave</b></td>
+                <td>The knife slashes the screen corner to corner; the two triangle halves fall away onto the rotisserie orbit</td>
+                <td><code>knife.webp</code>, <code>spit-cone.webp</code>, <code>tile-wall.webp</code>, <code>cinema-marquee.webp</code></td>
+              </tr>
+              <tr>
+                <td><b>04 · Power Cut &amp; Match Strike</b></td>
+                <td>The bulbs die, a match strikes in the dark and its flame burns a hole straight through to the sunlit matchbox kiosk</td>
+                <td><code>cinema-marquee.webp</code> + CSS matchbox, match &amp; flame</td>
+              </tr>
+              <tr>
+                <td><b>05 · 3 AM Shutter Slam &amp; Lift</b></td>
+                <td>A steel shutter bounces down over the kiosk (طراخ!), then rolls up on the night window where the brass tray feast is plated</td>
+                <td><code>night-shop.webp</code>, <code>brass-tray.webp</code>, <code>jallab-glass.webp</code>, <code>arabi-box.webp</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Master Reel: the real prototype, embedded and driven by postMessage -->
+        <div>
+          <div class="sim-frame">
+            <div class="sim-top">
+              <span>⊕ LIVE REEL · prototype.html</span>
+              <span id="simStatus">STAGE 01 · THE SAROUKH</span>
+              <span id="simPct">00%</span>
+            </div>
+            <div class="reel" id="simReel"><iframe src="prototype.html?embed" title="BAZOOKA full reel"></iframe></div>
+            <div class="sim-bar">
+              <div class="sim-row">
+                <button class="btn-litho ochre" type="button" id="simPlay">▶ Run Full Adventure</button>
+                <input type="range" id="simRange" min="0" max="1000" value="0" aria-label="Scrub the full reel">
+              </div>
+              <div class="sim-tabs" id="simTabs">
+                <button type="button" class="sim-tab active" data-label="start">01 · Saroukh</button>
+                <button type="button" class="sim-tab" data-label="clamp">02 · Iron Clamp</button>
+                <button type="button" class="sim-tab" data-label="chop">03 · 5-Slice Chop</button>
+                <button type="button" class="sim-tab" data-label="spit3">04 · Spit Orbit</button>
+                <button type="button" class="sim-tab" data-label="boxes">05 · Matchboxes</button>
+                <button type="button" class="sim-tab" data-label="shutter">06 · 3 AM Shutter</button>
+                <button type="button" class="sim-tab" data-label="receipt">07 · Night Feast</button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:14px; background:var(--nile); color:var(--sand); padding:10px 16px; border:2px solid var(--nile)">
+            <span style="font-family:var(--f-mono); font-size:0.75rem">One flick of the wheel = one beat. Feel it full-screen:</span>
+            <a class="btn-litho ochre" href="prototype.html" target="_blank" rel="noopener" style="text-decoration:none; white-space:nowrap">Open Full Scroll Prototype ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 01 · PROCESSED WEBP CUTOUT & SCENE VAULT ================= -->
+  <section class="sec dark-sec" id="vault">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">01 · Live Processed Asset Inspector</span>
+          <h2 class="riso-title">29 WebP Cutouts &amp; Scenes</h2>
+        </div>
+        <p>Generated automatically by <code>design/scripts/cutouts.py</code> from all 20 raw renders in <code>/assets</code>. Notice how <code>cross section.jpg</code> split into 5 independent pinwheels (<code>slice-1..5.webp</code>) and <code>garnishes.jpg</code> split into 4 independent flying garnish sprites (<code>garnish-1..4.webp</code>). Click any background mode below to verify alpha edge purity, or click any card to jolt the sprite.</p>
+      </div>
+
+      <div class="vault-toolbar">
+        <div style="font-family:var(--f-mono); font-size:0.78rem; color:var(--ochre)">
+          ⊕ PIPELINE: <code>assets/*.jpg (20)</code> → Border Flood Knockout + 2D Component Splitter → <code>design/assets/*.webp (29)</code>
+        </div>
+        <div style="display:flex; gap:8px">
+          <button type="button" class="btn-litho ochre" data-bg-btn="checker">Alpha Checkerboard</button>
+          <button type="button" class="btn-litho" data-bg-btn="nile">Nile Midnight (#0D1326)</button>
+          <button type="button" class="btn-litho cobalt" data-bg-btn="sand">Litho Sand (#EBE1C9)</button>
+        </div>
+      </div>
+
+      <div class="vault-grid" id="vaultGrid" data-bg="checker"></div>
+    </div>
+  </section>
+
+  <!-- ================= 02 · SILKSCREEN INKS & RISOGRAPH TYPOGRAPHY ================= -->
+  <section class="sec" id="palette">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">02 · Overprint Ink System &amp; Bilingual Type</span>
+          <h2 class="riso-title">Silkscreen Plates × Kufic Type</h2>
+        </div>
+        <p>1968 Cairo &amp; Beirut street lithography: raw unbleached cardstock (`#EBE1C9`) overprinted with deep Nile Midnight (`#0D1326`), Al-Ahram Cobalt (`#1B3BF5`), Pomegranate Vermilion (`#D9232E`), Damascus Pistachio (`#0D9463`), and Brass Ochre (`#D99B26`).</p>
+      </div>
+
+      <div class="ink-grid">
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#0D1326; color:#EBE1C9"><span class="reg-mark">⊕ C:90 K:85</span><span class="ar-callig">ليل النيل</span></div>
+          <div class="ink-meta"><b>Nile Midnight</b><code>#0D1326</code><p>Key-plate ink, heavy woodcut borders, cutaway &amp; night-kiosk ground.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#1B3BF5; color:#EBE1C9"><span class="reg-mark">⊕ PLATE 01</span><span class="ar-callig">أزرق كحلي</span></div>
+          <div class="ink-meta"><b>Al-Ahram Cobalt</b><code>#1B3BF5</code><p>Primary silkscreen blue plate, matchbox sleeves, misregistration channel A.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#D9232E; color:#EBE1C9"><span class="reg-mark">⊕ PLATE 02</span><span class="ar-callig">أحمر طربوش</span></div>
+          <div class="ink-meta"><b>Pomegranate Vermilion</b><code>#D9232E</code><p>Cinema-poster brush ribbons, shatta chili heat, misregistration channel B.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#0D9463; color:#EBE1C9"><span class="reg-mark">⊕ PLATE 03</span><span class="ar-callig">فستق حلبي</span></div>
+          <div class="ink-meta"><b>Damascus Pistachio</b><code>#0D9463</code><p>Fresh herb &amp; ceramic tile accent, paid receipt stamps.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#D99B26; color:#0D1326"><span class="reg-mark">⊕ PLATE 04</span><span class="ar-callig">نحاس أصفر</span></div>
+          <div class="ink-meta"><b>Brass Spit Ochre</b><code>#D99B26</code><p>Syrian brass mortar, targeting reticles, toasted saj crust tone.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#EBE1C9; color:#0D1326"><span class="reg-mark">⊕ STOCK</span><span class="ar-callig">ورق طباعة</span></div>
+          <div class="ink-meta"><b>Unbleached Litho Sand</b><code>#EBE1C9</code><p>Raw poster paper stock, thermal order receipts, hero ground.</p></div>
+        </article>
+      </div>
+
+      <div class="lab-grid">
+        <!-- Type Lab 1: Interactive Risograph Plate Misregistration -->
+        <article class="lab-card">
+          <div class="lab-head"><h4>1. Interactive Risograph Plate Misregistration</h4><button class="btn-litho ochre" type="button" id="btnRisoJolt">Jolt Plates</button></div>
+          <div class="lab-stage" id="stageRiso" style="flex-direction:column; cursor:crosshair">
+            <div style="position:relative; font-family:var(--f-kufi); font-weight:800; font-size:4rem; line-height:1">
+              <span class="r-c" style="position:absolute; left:0; top:0; color:var(--cobalt); mix-blend-mode:multiply; transform:translate(-4px,-3px)">شاورما بازوكا</span>
+              <span class="r-v" style="position:absolute; left:0; top:0; color:var(--vermilion); mix-blend-mode:multiply; transform:translate(4px,3px)">شاورما بازوكا</span>
+              <span style="position:relative; color:var(--nile)">شاورما بازوكا</span>
+            </div>
+            <div style="position:relative; font-family:var(--f-poster); font-size:2.2rem; margin-top:8px">
+              <span class="r-c" style="position:absolute; left:0; top:0; color:var(--cobalt); opacity:0.85; transform:translate(-4px,-3px)">BAZOOKA</span>
+              <span class="r-v" style="position:absolute; left:0; top:0; color:var(--vermilion); opacity:0.85; transform:translate(4px,3px)">BAZOOKA</span>
+              <span style="position:relative; color:var(--nile)">BAZOOKA</span>
+            </div>
+            <span style="font-family:var(--f-mono); font-size:0.7rem; margin-top:14px; color:#554D3E">Move pointer across stage or drag slider to separate Cobalt/Vermilion plates</span>
+          </div>
+          <div class="lab-scrub"><span>Plate Offset</span><input type="range" min="0" max="16" value="4" id="risoRange"><output id="risoOut">4px</output></div>
+          <div class="lab-foot"><dl><dt>Behavior</dt><dd>Scroll velocity and pointer movement physically separate the Cobalt (`#1B3BF5`) and Vermilion (`#D9232E`) ink plates; at rest they snap back into registration.</dd></dl></div>
+        </article>
+
+        <!-- Type Lab 2: Diagonal Cairo Cinema Ribbon Slash with Real Chili Splash -->
+        <article class="lab-card">
+          <div class="lab-head"><h4>2. Diagonal "Aflam" Cinema Slash + Shatta Arc</h4><button class="btn-litho ochre" type="button" id="btnSlash">Replay Slash</button></div>
+          <div class="lab-stage" id="stageSlash" style="background:var(--nile)">
+            <img src="assets/chilli-splash.webp" id="slashChilli" alt="" style="position:absolute; width:260px; opacity:0.9">
+            <div id="slashR1" class="cinema-ribbon" style="font-size:1.9rem; background:var(--vermilion); position:absolute; top:42px; z-index:2">صاروخ شاورما عالفحم</div>
+            <div id="slashR2" class="cinema-ribbon" style="font-size:1.25rem; background:var(--ochre); color:var(--nile); font-family:var(--f-poster); position:absolute; bottom:44px; transform:skewY(4deg) rotate(2deg); box-shadow:5px 5px 0 var(--vermilion); z-index:2">ROLLED IN BRUSHED FOIL</div>
+          </div>
+          <div class="lab-foot"><dl><dt>Where</dt><dd>Section headers &amp; Kiosk wipe</dd><dt>Mechanic</dt><dd>Opposing diagonal ribbons (`skewY(-5deg)` and `skewY(4deg)`) slice across `chilli-splash.webp` like hand-painted Cairo movie billboards.</dd></dl></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 · CONTRAPTIONS & CREATIVE SECTION-TO-SECTION TRANSITIONS ================= -->
+  <section class="sec dark-sec" id="contraptions">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">03 · Interactive Choreography &amp; Transitions</span>
+          <h2 class="riso-title">Contraptions &amp; Section Cleaves</h2>
+        </div>
+        <p>Every lab below is the real prototype (<code>prototype.html?embed</code>) playing its own slice of the master timeline, so this spec can never drift from the build. Scrub the slider or press play; clicks (matchboxes, the receipt tear) work inside the labs too.</p>
+      </div>
+
+      <div class="lab-grid reels" id="labGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= 04 · NANO BANANA PRO PROMPTS (ALL 18 INTEGRATED LIVE) ================= -->
+  <section class="sec" id="prompts">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">04 · Complete 18-Asset Generation &amp; Cutout Spec</span>
+          <h2 class="riso-title">All 18 Prompts · 100% Integrated</h2>
+        </div>
+        <p>All 18 Nano Banana Pro prompts (`BZ01`–`BZ18`) have been generated, processed into 29 transparent `.webp` sprites and scenes, and wired into the live contraptions and transitions.</p>
+      </div>
+
+      <div class="prompt-banner">
+        <div>
+          <div style="font-family:var(--f-poster); font-size:1.15rem; color:var(--ochre)">Complete 18-Prompt Archive (Phase 1 + Phase 2 Bonus)</div>
+          <p style="font-size:0.88rem; margin-top:6px; opacity:0.92">
+            Every card below shows the live processed `.webp` cutout thumbnail alongside its 10-field prompt specification for future regeneration or menu expansion.
+          </p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <button class="btn-litho ochre" type="button" id="copyBonusBtn" style="padding:12px 18px; font-size:0.82rem">📋 Copy Phase 2 Prompts (BZ13–BZ18)</button>
+          <button class="btn-litho cobalt" type="button" id="copyAllBtn" style="padding:10px 16px; font-size:0.76rem">📋 Copy All 18 Prompts (BZ01–BZ18)</button>
+        </div>
+      </div>
+
+      <div class="pr-grid" id="prGrid"></div>
+    </div>
+  </section>
+</main>
+
+<div class="kufic-border" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<textarea class="hidden-copy" id="hiddenCopy" aria-hidden="true" tabindex="-1"></textarea>
+
+<script>
+/* ============================================================================
+   1. REEL HOST + MASTER SIMULATOR
+   Every simulator/lab is prototype.html?embed in an iframe, rendered at
+   1440x900 and scaled to fit. The prototype answers seek/play messages and
+   reports its timeline state back.
+   ============================================================================ */
+const REEL_W = 1440;
+const reels = new Map();
+const reelResize = new ResizeObserver(entries => entries.forEach(e => {
+  e.target.querySelector('iframe').style.transform = `scale(${e.target.clientWidth / REEL_W})`;
+}));
+
+function mountReel(box, { onReady, onState } = {}) {
+  const frame = box.querySelector('iframe');
+  reelResize.observe(box);
+  const api = {
+    labels: null,
+    duration: 0,
+    time: 0,
+    seek(time, instant) { frame.contentWindow.postMessage({ bz: true, cmd: 'seek', time, instant }, '*'); },
+    play(from, to) { frame.contentWindow.postMessage({ bz: true, cmd: 'play', from, to }, '*'); },
+    pause() { this.seek(this.time, true); }
+  };
+  reels.set(frame, { api, onReady, onState });
+  return api;
+}
+
+addEventListener('message', e => {
+  const m = e.data;
+  if (!m || !m.bz) return;
+  for (const [frame, r] of reels) {
+    if (frame.contentWindow !== e.source) continue;
+    if (m.cmd === 'ready') {
+      Object.assign(r.api, { labels: m.labels, duration: m.duration, hud: m.hud });
+      if (r.onReady) r.onReady(r.api);
+    }
+    if (m.cmd === 'state' && r.api.labels) {
+      r.api.time = m.time;
+      if (r.onState) r.onState(m, r.api);
+    }
+  }
+});
+
+(() => {
+  const range = document.getElementById('simRange');
+  const playBtn = document.getElementById('simPlay');
+  const statusEl = document.getElementById('simStatus');
+  const pctEl = document.getElementById('simPct');
+  const tabs = [...document.querySelectorAll('#simTabs .sim-tab')];
+  let playing = false;
+
+  const setPlaying = on => {
+    playing = on;
+    playBtn.textContent = on ? '⏸ Pause' : '▶ Run Full Adventure';
+  };
+
+  const reel = mountReel(document.getElementById('simReel'), {
+    onState(m, api) {
+      const p = api.duration ? m.time / api.duration : 0;
+      range.value = Math.round(p * 1000);
+      pctEl.textContent = String(Math.round(p * 100)).padStart(2, '0') + '%';
+      if (m.hud) statusEl.textContent = m.hud;
+      let active = tabs[0];
+      tabs.forEach(t => { if (api.labels[t.dataset.label] <= m.time + 0.01) active = t; });
+      tabs.forEach(t => t.classList.toggle('active', t === active));
+      if (playing && m.time >= api.duration - 0.01) setPlaying(false);
+    }
+  });
+
+  range.addEventListener('input', () => {
+    if (!reel.duration) return;
+    setPlaying(false);
+    reel.seek(range.value / 1000 * reel.duration);
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (!reel.duration) return;
+    if (playing) {
+      reel.pause();
+      setPlaying(false);
+    } else {
+      reel.play(reel.time >= reel.duration - 0.05 ? 0 : reel.time, reel.duration);
+      setPlaying(true);
+    }
+  });
+
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    if (!reel.labels) return;
+    setPlaying(false);
+    reel.seek(reel.labels[tab.dataset.label]);
+  }));
+})();
+
+/* ============================================================================
+   2. PROCESSED WEBP CUTOUT & SCENE VAULT (29 LIVE FILES)
+   ============================================================================ */
+(() => {
+  const ASSETS = [
+    { file: 'saroukh-hero.webp', raw: 'hero shwarma.jpg', dim: '1350×776 · 200 KB', slot: 'Hero Diagonal Foil Rocket', kind: 'cutout' },
+    { file: 'saroukh-shatta.webp', raw: 'shwarma variant 1.jpg', dim: '1038×603 · 122 KB', slot: 'Drum Face 02 · Shatta Napalm', kind: 'cutout' },
+    { file: 'saroukh-lamb.webp', raw: 'shwarma variant 2.jpg', dim: '1038×603 · 121 KB', slot: 'Drum Face 03 · Dibs & Lamb', kind: 'cutout' },
+    { file: 'saroukh-toum.webp', raw: 'shwarma variant 3.jpg', dim: '1250×718 · 173 KB', slot: 'Drum Face 04 · Toum Overdose', kind: 'cutout' },
+    { file: 'slice-1.webp', raw: 'cross section.jpg (#1)', dim: '405×560 · 70 KB', slot: 'Cutaway Stratum 01 · Saj Crust', kind: 'cutout' },
+    { file: 'slice-2.webp', raw: 'cross section.jpg (#2)', dim: '419×560 · 71 KB', slot: 'Cutaway Stratum 02 · Toum Ring', kind: 'cutout' },
+    { file: 'slice-3.webp', raw: 'cross section.jpg (#3)', dim: '431×560 · 80 KB', slot: 'Cutaway Stratum 03 · Spit Ribeye', kind: 'cutout' },
+    { file: 'slice-4.webp', raw: 'cross section.jpg (#4)', dim: '419×560 · 73 KB', slot: 'Cutaway Stratum 04 · Torshi Core', kind: 'cutout' },
+    { file: 'slice-5.webp', raw: 'cross section.jpg (#5)', dim: '396×560 · 66 KB', slot: 'Cutaway Stratum 05 · Sumac Fry', kind: 'cutout' },
+    { file: 'slices-row.webp', raw: 'cross section.jpg (Full)', dim: '1600×401 · 202 KB', slot: 'Full 5-Slice Reference Row', kind: 'cutout' },
+    { file: 'garnish-1.webp', raw: 'garnishes.jpg (#1)', dim: '318×480 · 25 KB', slot: 'Shrapnel 01 · Sumac Fry Baton', kind: 'cutout' },
+    { file: 'garnish-2.webp', raw: 'garnishes.jpg (#2)', dim: '344×480 · 26 KB', slot: 'Shrapnel 02 · Blistered Chili', kind: 'cutout' },
+    { file: 'garnish-3.webp', raw: 'garnishes.jpg (#3)', dim: '446×480 · 65 KB', slot: 'Shrapnel 03 · Roasted Onion Ring', kind: 'cutout' },
+    { file: 'garnish-4.webp', raw: 'garnishes.jpg (#4)', dim: '411×480 · 51 KB', slot: 'Shrapnel 04 · Fresh Parsley Leaf', kind: 'cutout' },
+    { file: 'garnishes-row.webp', raw: 'garnishes.jpg (Full)', dim: '1600×596 · 169 KB', slot: 'Full 4-Garnish Reference Row', kind: 'cutout' },
+    { file: 'charcoal-embers.webp', raw: 'ember and coals.jpg', dim: '1200×1008 · 221 KB', slot: 'Stage 03 Glowing Spit Embers', kind: 'cutout' },
+    { file: 'brass-tray.webp', raw: 'plate and paper.jpg', dim: '1300×844 · 271 KB', slot: 'Stage 05 Engraved Brass Platter', kind: 'cutout' },
+    { file: 'jallab-glass.webp', raw: 'cocktail.jpg', dim: '657×1050 · 137 KB', slot: 'Matchbox 05 · Iced Ruby Jallab', kind: 'cutout' },
+    { file: 'iron-press.webp', raw: 'stamp and sear.jpg', dim: '1250×948 · 213 KB', slot: 'Cast-Iron Clamp & Sear Press', kind: 'cutout' },
+    { file: 'cinema-marquee.webp', raw: 'arch and bulbs.jpg', dim: '1920×490 · 195 KB', slot: '1968 Bulb & Brass Proscenium Arch', kind: 'cutout' },
+    { file: 'knife.webp', raw: 'carving knife.jpg', dim: '392×1200 · 33 KB', slot: 'Cutaway Scanner & Sword Cleave', kind: 'cutout' },
+    { file: 'spit-cone.webp', raw: 'meat split.jpg', dim: '514×1350 · 186 KB', slot: '360° Rotisserie Drum Axis', kind: 'cutout' },
+    { file: 'foil-curl.webp', raw: 'foil.jpg', dim: '726×876 · 101 KB', slot: 'Hero Foil Tornado Orbiters', kind: 'cutout' },
+    { file: 'toum-mortar.webp', raw: 'toum.jpg', dim: '811×960 · 125 KB', slot: 'Matchbox 01 & Night Counter', kind: 'cutout' },
+    { file: 'pickle-jar.webp', raw: 'pickle jar.jpg', dim: '609×1050 · 118 KB', slot: 'Matchbox 03 & Night Counter', kind: 'cutout' },
+    { file: 'chilli-splash.webp', raw: 'chilli splash.jpg', dim: '1100×706 · 146 KB', slot: 'Hero Arc & Kiosk Shatta Wave', kind: 'cutout' },
+    { file: 'arabi-box.webp', raw: 'shwarma box.jpg', dim: '1200×1034 · 225 KB', slot: 'Drum Face 05 & Matchbox 04', kind: 'cutout' },
+    { file: 'tile-wall.webp', raw: 'wall.jpg', dim: '1920×1072 · 442 KB', slot: 'Stage 03 Ceramic Tile Backdrop', kind: 'scene' },
+    { file: 'night-shop.webp', raw: 'shop.jpg', dim: '1920×1072 · 188 KB', slot: 'Stage 05 Night Kiosk Window', kind: 'scene' }
+  ];
+
+  const grid = document.getElementById('vaultGrid');
+  grid.innerHTML = ASSETS.map(a => `
+    <article class="vault-card">
+      <div class="vault-stage">
+        <img src="assets/${a.file}" class="${a.kind === 'scene' ? 'scene-thumb' : ''}" alt="${a.file}" loading="lazy">
+      </div>
+      <div class="vault-meta">
+        <code>assets/${a.file}</code>
+        <span>From: ${a.raw} (${a.dim})</span>
+        <div style="margin-top:4px; font-weight:700; color:var(--sand)">${a.slot}</div>
+      </div>
+    </article>
+  `).join('');
+
+  document.querySelectorAll('[data-bg-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      grid.dataset.bg = btn.dataset.bgBtn;
+    });
+  });
+
+  grid.querySelectorAll('.vault-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const img = card.querySelector('img');
+      gsap.fromTo(img, { scale: 1.24, rotation: (Math.random() - 0.5) * 18 }, { scale: 1, rotation: 0, duration: 0.45, ease: 'elastic.out(1, 0.3)' });
+    });
+  });
+})();
+
+/* ============================================================================
+   3. PALETTE & TYPOGRAPHY INTERACTIONS
+   ============================================================================ */
+document.querySelectorAll('.ink-plate').forEach(plate => {
+  plate.addEventListener('click', () => {
+    gsap.fromTo(plate, { y: 6, rotation: -2 }, { y: 0, rotation: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
+  });
+});
+
+(() => {
+  const stage = document.getElementById('stageRiso');
+  const rng = document.getElementById('risoRange');
+  const out = document.getElementById('risoOut');
+  const cLayers = stage.querySelectorAll('.r-c');
+  const vLayers = stage.querySelectorAll('.r-v');
+
+  const setOffset = (dx, dy) => {
+    gsap.set(cLayers, { x: -dx, y: -dy });
+    gsap.set(vLayers, { x: dx, y: dy });
+  };
+
+  rng.addEventListener('input', () => {
+    const v = +rng.value;
+    out.textContent = v + 'px';
+    setOffset(v, v * 0.75);
+  });
+
+  stage.addEventListener('pointermove', e => {
+    const r = stage.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width - 0.5;
+    const ny = (e.clientY - r.top) / r.height - 0.5;
+    setOffset(nx * 24, ny * 18);
+  });
+
+  document.getElementById('btnRisoJolt').addEventListener('click', () => {
+    gsap.timeline()
+      .to(cLayers, { x: -14, y: -10, duration: 0.08 })
+      .to(vLayers, { x: 14, y: 10, duration: 0.08 }, '<')
+      .to(cLayers, { x: -3, y: -2, duration: 0.5, ease: 'elastic.out(1, 0.25)' })
+      .to(vLayers, { x: 3, y: 2, duration: 0.5, ease: 'elastic.out(1, 0.25)' }, '<');
+  });
+})();
+
+document.getElementById('btnSlash').addEventListener('click', () => {
+  gsap.timeline()
+    .fromTo('#slashChilli', { scale: 0.5, rotation: -25, opacity: 0 }, { scale: 1, rotation: 0, opacity: 0.9, duration: 0.4, ease: 'back.out(2)' })
+    .fromTo('#slashR1', { clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)', x: -60 }, { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', x: 0, duration: 0.45, ease: 'power3.out' }, 0.05)
+    .fromTo('#slashR2', { clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)', x: 60 }, { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', x: 0, duration: 0.45, ease: 'power3.out' }, 0.15);
+});
+
+/* ============================================================================
+   4. CONTRAPTION & TRANSITION LABS — each one replays a beat range of the
+      real prototype timeline (labels live in prototype.html)
+   ============================================================================ */
+const LABS = [
+  {
+    from: 'start', to: 'clamp', title: '01 · Foil Tornado & Iron Clamp', btn: '▶ Unpeel & Clamp',
+    where: ['Contraption', '02 · Hero poster'],
+    mech: 'Beat 1 whips the three <code>foil-curl.webp</code> ribbons and four garnish sprites out in a tornado spiral. Beat 2 drops <code>iron-press.webp</code> from above straight onto the wrap: it squashes, the poster sears darker, steam rises and a طَشّ! stamp slams in.',
+    assets: '<code>saroukh-hero</code>, <code>foil-curl</code>, <code>garnish-1..4</code>, <code>iron-press</code>, <code>chilli-splash</code>'
+  },
+  {
+    from: 'clamp', to: 'launch', title: '02 · Rocket Launch & Touchdown', btn: '▶ Lift Off',
+    where: ['Transition', 'Hero → Anatomy'],
+    mech: 'The press springs off, a shatta-flame exhaust ignites at the foil tail and انطلاق! stamps in. The saroukh lifts off along its own 2 o’clock axis while vermilion, cobalt and Nile plates streak along the flight path and swallow the poster. In the same beat it crash-lands in the Anatomy scene (طاخ!).',
+    assets: '<code>saroukh-hero</code>, <code>chilli-splash</code> (as exhaust), CSS plate bands'
+  },
+  {
+    from: 'launch', to: 'chop', title: '03 · 5-Slice Chop', btn: '▶ Chop',
+    where: ['Contraption', '03 · Anatomy cutaway'],
+    mech: '<code>knife.webp</code> chops the landed wrap right-to-left; each chop clips the wrap and pops the matching slice into the row with its stratum tag.',
+    assets: '<code>saroukh-hero</code>, <code>knife</code>, <code>slice-1..5</code>'
+  },
+  {
+    from: 'chop', to: 'cleave', title: '04 · Sword Slash Cleave', btn: '▶ Slash Screen',
+    where: ['Transition', 'Anatomy → Spit Orbit'],
+    mech: 'The knife cocks at the top-right corner and slashes the diagonal. A glowing seam draws corner to corner, شَقّ! stamps in and the two triangle halves fall away onto the rotisserie scene.',
+    assets: '<code>knife</code>, <code>slice-1..5</code>, <code>spit-cone</code>'
+  },
+  {
+    from: 'cleave', to: 'spit5', title: '05 · 360° Rotisserie Orbit', btn: '▶ Spin the Spit',
+    where: ['Contraption', '04 · Spit arsenal'],
+    mech: 'Five dishes orbit <code>spit-cone.webp</code> on an elliptical ring. Each beat swings the next dish to the front-right of the cone (the rest recede and dim behind it), flips the menu card and flares the embers.',
+    assets: '<code>spit-cone</code>, <code>charcoal-embers</code>, <code>cinema-marquee</code>, <code>tile-wall</code>, <code>saroukh-*</code>, <code>arabi-box</code>'
+  },
+  {
+    from: 'spit5', to: 'blackout', title: '06 · Power Cut & Match Strike', btn: '▶ Strike a Match',
+    where: ['Transition', 'Spit Orbit → Kiosk'],
+    mech: 'The marquee bulbs flicker out to black. A matchbox striker rises, the match strikes across it, sparks burst, and the flame blooms into a ring that burns a hole straight through to the sunlit kiosk.',
+    assets: '<code>cinema-marquee</code> + CSS striker, match, sparks &amp; flame'
+  },
+  {
+    from: 'blackout', to: 'boxes', title: '07 · Matchbox Chain Reaction', btn: '▶ Light the Fuse',
+    where: ['Contraption', '05 · Matchbox kiosk'],
+    mech: 'One flick lights the whole shelf like a fuse: box by box, a phosphor spark fires on the striker, the sleeve jolts, the drawer slides out showing its price and the product springs up out of the box.',
+    assets: '<code>toum-mortar</code>, <code>chilli-splash</code>, <code>pickle-jar</code>, <code>arabi-box</code>, <code>jallab-glass</code>'
+  },
+  {
+    from: 'boxes', to: 'shutter', title: '08 · 3 AM Shutter Slam', btn: '▶ Slam',
+    where: ['Transition', 'Kiosk → Night window'],
+    mech: 'The kiosk dims and a corrugated steel shutter bounces down with a طراخ! stamp and a 03:00 AM clock. The next beat rolls it up on the night window.',
+    assets: '<code>night-shop</code>, <code>cinema-marquee</code> + CSS shutter'
+  },
+  {
+    from: 'shutter', to: 'receipt', title: '09 · Shutter Lift, Feast & Receipt', btn: '▶ Lift & Serve',
+    where: ['Contraption', '06 · Night window'],
+    mech: 'The shutter rolls up on the night window and, in the same beat, the brass tray skids down the counter, the saroukh drops onto it, the carton is tossed in, the jallab slides in, and toum and torshi pop up from behind the counter. The next beat prints the ticket out of the brass slot. TEAR TICKET works here too.',
+    assets: '<code>brass-tray</code>, <code>saroukh-hero</code>, <code>arabi-box</code>, <code>jallab-glass</code>, <code>toum-mortar</code>, <code>pickle-jar</code>'
+  }
+];
+
+(() => {
+  const grid = document.getElementById('labGrid');
+  grid.innerHTML = LABS.map(l => `
+    <article class="lab-card">
+      <div class="lab-head"><h4>${l.title}</h4><button class="btn-litho ochre" type="button">${l.btn}</button></div>
+      <div class="reel"><iframe loading="lazy" src="prototype.html?embed&amp;at=${l.from}" title="${l.title}"></iframe></div>
+      <div class="lab-scrub"><span>Scrub</span><input type="range" min="0" max="1000" value="0" aria-label="Scrub ${l.title}"><output>0%</output></div>
+      <div class="lab-foot"><dl>
+        <dt>${l.where[0]}</dt><dd>${l.where[1]}</dd>
+        <dt>Mechanic</dt><dd>${l.mech}</dd>
+        <dt>Assets</dt><dd>${l.assets}</dd>
+      </dl></div>
+    </article>
+  `).join('');
+
+  grid.querySelectorAll('.lab-card').forEach((card, i) => {
+    const lab = LABS[i];
+    const range = card.querySelector('input');
+    const out = card.querySelector('output');
+    const span = api => [api.labels[lab.from], api.labels[lab.to]];
+    const reel = mountReel(card.querySelector('.reel'), {
+      onState(m, api) {
+        const [t0, t1] = span(api);
+        const v = Math.max(0, Math.min(1, (m.time - t0) / (t1 - t0)));
+        range.value = Math.round(v * 1000);
+        out.textContent = Math.round(v * 100) + '%';
+      }
+    });
+    range.addEventListener('input', () => {
+      if (!reel.labels) return;
+      const [t0, t1] = span(reel);
+      reel.seek(t0 + (t1 - t0) * range.value / 1000);
+    });
+    card.querySelector('.lab-head button').addEventListener('click', () => {
+      if (!reel.labels) return;
+      const [t0, t1] = span(reel);
+      reel.play(t0, t1);
+    });
+  });
+})();
+
+/* ============================================================================
+   5. NANO BANANA PRO PROMPTS (ALL 18 INTEGRATED LIVE)
+   ============================================================================ */
+const BG_CUTOUT = 'Pure flat white background (#FFFFFF) filling the entire frame edge to edge. No floor, no table, no horizon line, no cast shadow on the background, no reflections, so the subject can be cleanly isolated.';
+const LIGHT_SHARED = 'Dramatic high-contrast 1960s Cairo/Beirut studio strobe from the upper left paired with warm amber charcoal-pit rim lighting from the lower right. Crisp specular highlights on brushed aluminum foil, garlic toum, and chili oil.';
+const STYLE_SHARED = 'Authentic 1968 Middle Eastern commercial food photograph with bold Kodachrome color saturation, deep shadows, tactile surface detail, and fine vintage print grain. Photorealistic.';
+const AVOID_SHARED = 'No text, no English or Arabic words, no logos, no watermarks, no hands, no people, no plates or background props.';
+
+const PROMPTS = [
+  /* --- 6 PHASE 2 BONUS ASSETS (NOW 100% INTEGRATED LIVE!) --- */
+  {
+    id: 'BZ13',
+    status: 'live',
+    thumb: 'assets/garnish-1.webp',
+    title: 'Flying Garnish Shrapnel Quartet (Split into garnish-1..4.webp)',
+    kind: 'cutout',
+    ratio: '16:9',
+    file: 'garnishes.jpg → garnish-1..4.webp',
+    slot: 'Hero Foil Tornado & Sword Cleave Parallax Shrapnel',
+    shot: 'High-speed studio macro photo of four distinct Levantine shawarma garnishes floating in a single horizontal row with wide white gaps between them.',
+    subject: 'Four individual ingredients spaced far apart from left to right for easy sprite cropping: (1) a golden crispy sumac-dusted french fry baton, (2) a fire-blistered green Aleppo chili pepper with charred skin, (3) a caramelized purple-and-gold roasted onion ring dusted with sumac, and (4) a fresh glossy flat-leaf parsley sprig with a tiny droplet of lemon juice.',
+    pose: 'All four items float in mid-air in a horizontal row, each tilted at a dynamic 35-degree angle with generous white space separating every item.',
+    camera: 'Camera at eye level pointing straight ahead, 85mm macro lens.',
+    shows: 'Crisp individual spice grains, charred chili blisters, and translucent onion layers on four completely separated sprites.',
+    framing: 'Wide 16:9 aspect ratio with wide white margins between all four items.',
+    avoid: 'Do not let any of the four items touch or overlap.'
+  },
+  {
+    id: 'BZ14',
+    status: 'live',
+    thumb: 'assets/charcoal-embers.webp',
+    title: 'Glowing Red-Hot Charcoal Embers & Spark Plume',
+    kind: 'cutout',
+    ratio: '3:2',
+    file: 'ember and coals.jpg → charcoal-embers.webp',
+    slot: 'Stage 03 — Floating Heat Parallax Around Rotisserie Spit Cone',
+    shot: 'High-speed studio photo of cracked lumpwood charcoal chunks glowing incandescent orange-red with rising golden sparks.',
+    subject: 'A cluster of five jagged, burning-hot Levantine oak charcoal pieces suspended in mid-air. Their fissures glow bright molten vermilion and amber-gold while a dozen crisp orange ember sparks float upward above them.',
+    pose: 'Suspended in mid-air in a loose diagonal cluster from 7 o\'clock to 2 o\'clock.',
+    camera: 'Camera at eye level, 50mm lens.',
+    shows: 'Intense incandescent orange-red cracks against dark charred wood facets.',
+    framing: 'Horizontal 3:2, centered with clean margin all around.',
+    avoid: 'No grill grates, no metal tray, no heavy gray smoke clouds that touch the frame borders.'
+  },
+  {
+    id: 'BZ15',
+    status: 'live',
+    thumb: 'assets/brass-tray.webp',
+    title: 'Engraved Syrian Brass Street Tray with Wax Paper',
+    kind: 'cutout',
+    ratio: '3:2',
+    file: 'plate and paper.jpg → brass-tray.webp',
+    slot: 'Stage 05 — Night Counter Landing Platter under Falling Wraps',
+    shot: 'Three-quarter high-angle studio photo of a vintage circular hand-engraved Damascus brass serving tray.',
+    subject: 'A wide, low-rimmed circular vintage brass street-food tray with intricate geometric Kufic and arabesque hammer engravings around the rim, partially lined in the center with a crumpled sheet of unbleached grease-spotted butcher wax paper.',
+    pose: 'Floating horizontally in mid-air and viewed at a 30-degree high angle so the flat top surface is ready to receive falling shawarma wraps.',
+    camera: 'Camera angled down at 30 degrees, 50mm lens.',
+    shows: 'The full elliptical foreshortened surface of the brass tray and its scalloped engraved rim.',
+    framing: 'Horizontal 3:2, centered.',
+    avoid: 'No food on the tray—keep the wax-paper center empty so cutouts can drop onto it dynamically.'
+  },
+  {
+    id: 'BZ16',
+    status: 'live',
+    thumb: 'assets/jallab-glass.webp',
+    title: 'Frosty Beirut Street Glass of Ruby Jallab & Pine Nuts',
+    kind: 'cutout',
+    ratio: '2:3',
+    file: 'cocktail.jpg → jallab-glass.webp',
+    slot: 'Matchbox Kiosk Drawer 05 & Night Counter Drop',
+    shot: 'Low three-quarter studio photo of a faceted vintage Levantine glass filled with iced ruby-crimson jallab / pomegranate street drink.',
+    subject: 'A heavy faceted Middle Eastern tea/juice tumbler overflowing with crushed ice, deep ruby-red date-and-pomegranate jallab syrup, a generous layer of golden toasted pine nuts and golden raisins floating on top, and a fresh green mint sprig.',
+    pose: 'Tilted dynamically toward 1 o\'clock in mid-air, with a few icy ruby droplets and three pine nuts splashing just above the rim.',
+    camera: 'Camera slightly below center looking up at 12 degrees, 85mm lens.',
+    shows: 'Warm backlighting refracting through the ruby liquid, crushed ice crystals, and floating golden pine nuts.',
+    framing: 'Vertical 2:3, centered.',
+    avoid: 'No plastic straw, no coaster.'
+  },
+  {
+    id: 'BZ17',
+    status: 'live',
+    thumb: 'assets/iron-press.webp',
+    title: 'Ribbed Cast-Iron Shawarma Press Griddle (Top & Bottom Plates)',
+    kind: 'cutout',
+    ratio: '3:2',
+    file: 'stamp and sear.jpg → iron-press.webp',
+    slot: 'Hero "Cast-Iron Clamp & Sear" Transition & Kiosk Header',
+    shot: 'Eye-level three-quarter photo of a heavy vintage ribbed cast-iron street sandwich press with jaws wide open.',
+    subject: 'A rugged, seasoned black cast-iron hinged panini/shawarma press with deep sear ridges, a coiled steel spring handle, and glistening droplets of sizzling beef fat on the lower grill grate.',
+    pose: 'Floating in mid-air with the top ribbed iron lid raised open at a 45-degree angle toward 11 o\'clock, ready to slam shut.',
+    camera: 'Camera at eye level, slight three-quarter view, 50mm lens.',
+    shows: 'Both the upper and lower ribbed cast-iron jaws clearly so the wrap can slide between them.',
+    framing: 'Horizontal 3:2, centered.',
+    avoid: 'No electrical cord, no table.'
+  },
+  {
+    id: 'BZ18',
+    status: 'live',
+    thumb: 'assets/cinema-marquee.webp',
+    title: '1968 Cairo Cinema Bulb & Brass Arch Marquee Frame',
+    kind: 'cutout',
+    ratio: '16:9',
+    file: 'arch and bulbs.jpg → cinema-marquee.webp',
+    slot: 'Top Proscenium Arch Frame for Stage 03 & Stage 05',
+    shot: 'Straight-on architectural photo of an ornate vintage 1960s Arabic cinema and street-kiosk upper cornice frame.',
+    subject: 'A wide horizontal decorative header beam crafted from painted Nile-indigo wood (#0D1326), geometric pierced brass filigree (#D99B26), and Pomegranate-red enamel trim (#D9232E), lined along its lower edge with warm glowing round tungsten carnival bulbs.',
+    pose: 'Strictly horizontal across the top of the frame, dead-flat to the camera.',
+    camera: 'Camera dead-center perpendicular to the arch, 50mm lens.',
+    shows: 'A clean horizontal decorative proscenium arch that can sit pinned at the top of the viewport.',
+    framing: 'Wide 16:9, centered.',
+    avoid: 'No lettering or text inside the marquee.'
+  },
+
+  /* --- 12 INTEGRATED PHASE 1 ASSETS --- */
+  {
+    id: 'BZ01',
+    status: 'live',
+    thumb: 'assets/saroukh-hero.webp',
+    title: 'Diagonal Foil-Wrapped "Saroukh" Shawarma Cylinder',
+    kind: 'cutout',
+    ratio: '3:2',
+    file: 'hero shwarma.jpg → saroukh-hero.webp',
+    slot: 'Contraption 02 — Hero Spiral Foil Unpeel & Barrel Zoom',
+    shot: 'Eye-level macro product photo of a tightly rolled, cylindrical shawarma wrap ("Saroukh" rocket style) floating diagonally.',
+    subject: 'A long, tightly rolled toasted saj flatbread shawarma cylinder wrapped in crinkly brushed silver aluminum foil with a spiral tear edge peeling back, exposing the golden-brown iron-seared saj bread and open 2 o\'clock mouth.',
+    pose: 'Suspended along a strict diagonal axis from lower-left (8 o\'clock) to upper-right (2 o\'clock).',
+    camera: 'Camera at eye level with a slight three-quarter bias toward the open right end, 50mm lens.',
+    shows: 'The full cylindrical torpedo silhouette, the spiral foil peel transition, and the layered cross-section mouth.',
+    framing: 'Horizontal 3:2.',
+    avoid: 'Do not stand the wrap vertically like a cup.'
+  },
+  {
+    id: 'BZ02',
+    status: 'live',
+    thumb: 'assets/saroukh-shatta.webp',
+    title: 'Diagonal Saroukh Flavor Variants (×3 Set)',
+    kind: 'cutout',
+    ref: 'Attach BZ01',
+    ratio: '3:2 ×3',
+    file: 'shwarma variant 1..3.jpg → saroukh-[shatta|lamb|toum].webp',
+    slot: 'Contraption 04 — 360° Octagonal Rotisserie Drum Cards',
+    shot: 'Exact same diagonal angle and lighting as the attached reference image BZ01.',
+    subject: 'The exact foil-wrapped diagonal shawarma cylinder from BZ01, changing ONLY the fillings visible inside the open 2 o\'clock mouth to Shatta Napalm, Dibs & Lamb, and Toum Overdose.',
+    pose: 'Identical to BZ01: diagonal axis from 8 o\'clock to 2 o\'clock.',
+    camera: 'Identical to BZ01: eye-level three-quarter view, 50mm lens.',
+    shows: 'Same foil tear line and cylinder proportions so cards swap seamlessly on the 3D rotisserie drum.',
+    framing: 'Horizontal 3:2.',
+    avoid: 'Do not alter the cylinder angle.'
+  },
+  {
+    id: 'BZ03',
+    status: 'live',
+    thumb: 'assets/slice-1.webp',
+    title: '5 Cross-Section Pinwheel Slices (Split into slice-1..5.webp)',
+    kind: 'cutout',
+    ratio: '16:9',
+    file: 'cross section.jpg → slice-1..5.webp',
+    slot: 'Contraption 03 — The Cutaway Saroukh Anatomy Scanner',
+    shot: 'Eye-level studio photo of five cross-cut shawarma pinwheel rounds floating in a horizontal row with wide gaps.',
+    subject: 'Five thick cylindrical cross-section slices cut from a toasted saj shawarma wrap, spaced well apart so each is cropped as an independent sprite (`slice-1.webp` to `slice-5.webp`).',
+    pose: 'All five slices float upright in a horizontal line, turned 25 degrees toward the camera.',
+    camera: 'Camera at eye level pointing straight at the row, 85mm lens.',
+    shows: 'Five distinct, non-overlapping cross-section discs.',
+    framing: 'Wide 16:9.',
+    avoid: 'No slices touching.'
+  },
+  {
+    id: 'BZ04',
+    status: 'live',
+    thumb: 'assets/knife.webp',
+    title: 'Long Brass-Handled Shawarma Carving Blade',
+    kind: 'cutout',
+    ratio: '1:3',
+    file: 'carving knife.jpg → knife.webp',
+    slot: 'Contraption 03 & Diagonal Sword Slash Split-Screen Cleave',
+    shot: 'Straight-on studio macro photo of a traditional Middle Eastern shawarma carving sword/knife.',
+    subject: 'A long, razor-sharp stainless-steel shawarma slicing blade with an ornate vintage engraved brass handle and roasted meat jus droplets.',
+    pose: 'Strictly vertical from 12 o\'clock to 6 o\'clock.',
+    camera: 'Camera dead-center perpendicular to the blade, 85mm lens.',
+    shows: 'Full vertical profile of the blade and brass handle.',
+    framing: 'Vertical 1:3.',
+    avoid: 'No hands.'
+  },
+  {
+    id: 'BZ05',
+    status: 'live',
+    thumb: 'assets/spit-cone.webp',
+    title: 'Towering Charcoal Rotisserie Spit Cone',
+    kind: 'cutout',
+    ratio: '2:3',
+    file: 'meat split.jpg → spit-cone.webp',
+    slot: 'Contraption 04 — Central Axis of the 360° Rotisserie Drum',
+    shot: 'Straight-on eye-level photo of a massive vertical shawarma meat cone on a steel spit rod.',
+    subject: 'A towering, deeply caramelized cone of stacked marinated beef and chicken thighs on a vertical chrome spit rod, crowned with a charred tomato and onion.',
+    pose: 'Strictly vertical (12 o\'clock to 6 o\'clock).',
+    camera: 'Camera at mid-cone height pointing straight ahead, 50mm lens.',
+    shows: 'Full inverted-cone silhouette from top spike to bottom catch pan.',
+    framing: 'Vertical 2:3.',
+    avoid: 'No background grill machine.'
+  },
+  {
+    id: 'BZ06',
+    status: 'live',
+    thumb: 'assets/foil-curl.webp',
+    title: 'Unpeeling Silver Foil Ribbon Curl',
+    kind: 'cutout',
+    ratio: '1:1',
+    file: 'foil.jpg → foil-curl.webp',
+    slot: 'Contraption 02 — Hero Foil Tornado Orbiters',
+    shot: 'High-speed studio photo of a torn strip of brushed aluminum shawarma foil curling in mid-air.',
+    subject: 'A wide helical strip of crinkled, brushed silver aluminum foil with golden grease droplets and a smudge of red chili oil.',
+    pose: 'Curling in a dramatic S-curve from 10 o\'clock to 4 o\'clock.',
+    camera: 'Camera at eye level, 50mm macro lens.',
+    shows: 'Crisp metallic crinkle facets.',
+    framing: 'Square 1:1.',
+    avoid: 'No food inside.'
+  },
+  {
+    id: 'BZ07',
+    status: 'live',
+    thumb: 'assets/toum-mortar.webp',
+    title: 'Brass Mortar & Pestle Crushing Garlic Toum',
+    kind: 'cutout',
+    ratio: '1:1',
+    file: 'toum.jpg → toum-mortar.webp',
+    slot: 'Matchbox Drawer 01 & Night Counter Drop',
+    shot: 'Three-quarter low-angle photo of a vintage engraved Syrian brass mortar overflowing with whipped garlic toum.',
+    subject: 'Octagonal hand-engraved vintage brass mortar and pestle overflowing with snowy whipped garlic toum, sumac, and olive oil.',
+    pose: 'Pestle leans toward 1 o\'clock.',
+    camera: 'Camera slightly below rim level looking up at 15 degrees, 50mm lens.',
+    shows: 'Geometric brass engravings and glossy white garlic peak.',
+    framing: 'Square 1:1.',
+    avoid: 'No table surface.'
+  },
+  {
+    id: 'BZ08',
+    status: 'live',
+    thumb: 'assets/pickle-jar.webp',
+    title: 'Glass Jar of Neon-Pink Pickled Turnips (Torshi Lift)',
+    kind: 'cutout',
+    ratio: '2:3',
+    file: 'pickle jar.jpg → pickle-jar.webp',
+    slot: 'Matchbox Drawer 03 & Night Counter Drop',
+    shot: 'Low three-quarter studio photo of a faceted glass counter jar filled with pink pickled turnips.',
+    subject: 'Faceted vintage glass jar filled with electric-magenta beet-pickled turnip batons, green chilies, and garlic cloves in ruby brine.',
+    pose: 'Tilted slightly toward 11 o\'clock with two crinkle-cut turnip sticks splashing out the top.',
+    camera: 'Camera looking up at 15 degrees, 50mm lens.',
+    shows: 'Light refracting through glowing magenta brine.',
+    framing: 'Vertical 2:3.',
+    avoid: 'No paper label.'
+  },
+  {
+    id: 'BZ09',
+    status: 'live',
+    thumb: 'assets/chilli-splash.webp',
+    title: 'Crushed Red Shatta Chili Oil Splash',
+    kind: 'cutout',
+    ratio: '3:2',
+    file: 'chilli splash.jpg → chilli-splash.webp',
+    slot: 'Hero Arc, Matchbox Drawer 02 & Kiosk Shatta Wave',
+    shot: 'High-speed side-profile photo of a fiery arc of crushed red chili shatta oil.',
+    subject: 'Glossy wave of crimson Levantine chili paste packed with golden chili seeds and ruby oil droplets.',
+    pose: 'Dynamic sweeping arc from 7 o\'clock to 2 o\'clock.',
+    camera: 'Camera perpendicular to the arc, 85mm lens.',
+    shows: 'Individual chili seeds and ruby oil droplets.',
+    framing: 'Horizontal 3:2.',
+    avoid: 'No bowl or spoon.'
+  },
+  {
+    id: 'BZ10',
+    status: 'live',
+    thumb: 'assets/arabi-box.webp',
+    title: 'Open Street Carton of Toasted Arabi Shawarma Bites',
+    kind: 'cutout',
+    ratio: '4:3',
+    file: 'shwarma box.jpg → arabi-box.webp',
+    slot: 'Drum Face 05, Matchbox 04 & Night Counter Drop',
+    shot: 'Three-quarter overhead angle (45 degrees) of an open foil-lined kraft street carton of sliced Arabi shawarma.',
+    subject: 'Kraft-cardboard street box lined with silver foil, packed with 8 butter-seared saj shawarma bites, spiced fries, pickled turnip spears, and twin sauce cups.',
+    pose: 'Tilted at 45 degrees with two bites levitating above the box.',
+    camera: '45-degree high three-quarter angle, 35mm lens.',
+    shows: 'Full interior grid of the box and crispy sear marks.',
+    framing: 'Horizontal 4:3.',
+    avoid: 'No logos.'
+  },
+  {
+    id: 'BZ11',
+    status: 'live',
+    thumb: 'assets/tile-wall.webp',
+    title: '1968 Cairo/Beirut Ceramic Tile & Brass Moulding Wall',
+    kind: 'scene',
+    ratio: '16:9',
+    file: 'wall.jpg → tile-wall.webp',
+    slot: 'Stage 03 — 360° Rotisserie Drum Architectural Backdrop',
+    shot: 'Flat, dead-straight architectural photo of a vintage Middle Eastern tiled wall.',
+    subject: 'Glazed geometric ceramic tiles in cobalt blue, cream, Damascus pistachio green, and brass ochre interlocking star patterns with a horizontal brass pipe rail.',
+    pose: 'Warm tungsten light raking from upper left.',
+    camera: '90 degrees perpendicular, 50mm lens.',
+    shows: 'Rectilinear tile grid edge-to-edge.',
+    framing: 'Horizontal 16:9.',
+    bg: 'Full-frame tiled wall.',
+    avoid: 'No signs or people.'
+  },
+  {
+    id: 'BZ12',
+    status: 'live',
+    thumb: 'assets/night-shop.webp',
+    title: 'Late-Night Shawarma Window & Brass Counter',
+    kind: 'scene',
+    ratio: '16:9',
+    file: 'shop.jpg → night-shop.webp',
+    slot: 'Stage 05 — Finale Night Kiosk Backdrop',
+    shot: 'Straight-on counter-height wide photo of a late-night 1960s Cairo/Beirut street shawarma window.',
+    subject: 'Moody night-time street shawarma kiosk framed in dark navy wood and brass trim, warm glowing tungsten bulbs, and an unobstructed brushed stainless-steel counter across the lower third.',
+    pose: 'Center counter and window unobstructed for interactive receipt and falling order items.',
+    camera: 'Counter height, 35mm lens.',
+    shows: 'Horizontal steel counter across lower third and glowing window frame.',
+    framing: 'Horizontal 16:9.',
+    bg: 'Full-frame night kiosk scene.',
+    avoid: 'No text or people.'
+  }
+];
+
+const prGrid = document.getElementById('prGrid');
+const toast = document.getElementById('toast');
+let tTimer;
+
+function notify(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(tTimer);
+  tTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+function buildFullPrompt(p) {
+  const out = [];
+  if (p.ref) out.push(`REFERENCE: Use the attached image (${p.ref.replace('Attach ', '')}) as the exact angle, lighting, and foil-wrap reference.`);
+  out.push(`SHOT: ${p.shot}`);
+  out.push(`SUBJECT: ${p.subject}`);
+  out.push(`POSE: ${p.pose}`);
+  out.push(`CAMERA: ${p.camera}`);
+  out.push(`WHAT THE ANGLE SHOWS: ${p.shows}`);
+  out.push(`FRAMING: ${p.framing} Aspect ratio ${p.ratio.split(' ')[0]}.`);
+  out.push(`LIGHTING: ${LIGHT_SHARED}`);
+  out.push(`BACKGROUND: ${p.kind === 'cutout' ? BG_CUTOUT : p.bg}`);
+  out.push(`STYLE: ${STYLE_SHARED}`);
+  out.push(`AVOID: ${p.avoid} ${AVOID_SHARED}`);
+  return out.join('\n');
+}
+
+function copyClip(text, label) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => notify('Copied ' + label), () => fallbackClip(text, label));
+  } else {
+    fallbackClip(text, label);
+  }
+}
+
+function fallbackClip(text, label) {
+  const ta = document.getElementById('hiddenCopy');
+  ta.value = text;
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    notify('Copied ' + label);
+  } catch {
+    notify('Press Ctrl+C to copy ' + label);
+  }
+}
+
+prGrid.innerHTML = PROMPTS.map(p => `
+  <article class="pr-box ${p.status === 'new' ? 'bonus' : ''}">
+    <div class="pr-stripe"></div>
+    <div class="pr-top">
+      <div>
+        <div class="pr-badges">
+          <span class="pr-badge">${p.id}</span>
+          ${p.status === 'live'
+            ? `<span class="pr-badge live">✓ INTEGRATED WEBP</span>`
+            : `<span class="pr-badge new-p">★ NEW BONUS PROMPT</span>`}
+          <span class="pr-badge ${p.kind}">${p.kind === 'scene' ? 'Full Scene' : 'Cutout (#FFFFFF)'}</span>
+          <span class="pr-badge">${p.ratio}</span>
+        </div>
+        <h3>${p.title}</h3>
+        <div class="pr-slot">${p.slot}</div>
+      </div>
+      ${p.thumb ? `<img class="pr-thumb" src="${p.thumb}" alt="${p.id}">` : ''}
+    </div>
+    <dl class="pr-dl">
+      <dt>Shot</dt><dd>${p.shot}</dd>
+      <dt>Subject</dt><dd>${p.subject}</dd>
+      <dt>Pose</dt><dd>${p.pose}</dd>
+      <dt class="cam">Camera</dt><dd>${p.camera}</dd>
+      <dt>Shows</dt><dd>${p.shows}</dd>
+      <dt>Framing</dt><dd>${p.framing}</dd>
+      <dt>Avoid</dt><dd>${p.avoid}</dd>
+    </dl>
+    <div class="pr-foot">
+      <code>${p.file}</code>
+      <button class="btn-litho ${p.status === 'new' ? 'ochre' : ''}" type="button" data-copy="${p.id}">Copy Prompt</button>
+    </div>
+  </article>
+`).join('');
+
+prGrid.querySelectorAll('[data-copy]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = PROMPTS.find(x => x.id === btn.dataset.copy);
+    if (p) copyClip(buildFullPrompt(p), p.id + ' · ' + p.title);
+  });
+});
+
+document.getElementById('copyBonusBtn').addEventListener('click', () => {
+  const bonus = PROMPTS.filter(p => +p.id.slice(2) >= 13).map(p => `=== ${p.id} · ${p.title} · ${p.kind.toUpperCase()} · ${p.ratio} · save as ${p.file}.jpg ===\n${buildFullPrompt(p)}`).join('\n\n');
+  copyClip(bonus, '6 New Bonus Prompts (BZ13–BZ18)');
+});
+
+document.getElementById('copyAllBtn').addEventListener('click', () => {
+  const all = PROMPTS.map(p => `=== ${p.id} · ${p.title} · ${p.kind.toUpperCase()} · ${p.ratio} ===\n${buildFullPrompt(p)}`).join('\n\n');
+  copyClip(all, 'All 18 BAZOOKA Prompts');
+});
+</script>
+</body>
+</html>

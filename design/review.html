@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BAZOOKA Design Review</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230D1326'/%3E%3Cpath d='M8,8 H56 V56 H8 Z' fill='none' stroke='%23D99B26' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23D9232E'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23EBE1C9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Chivo+Mono:wght@500;700;800&family=Dela+Gothic+One&family=Reem+Kufi:wght@700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --nile: #0D1326;
+  --nile-m: #16203D;
+  --sand: #EBE1C9;
+  --sand-d: #DCD0B2;
+  --cobalt: #1B3BF5;
+  --vermilion: #D9232E;
+  --pistachio: #0D9463;
+  --ochre: #D99B26;
+
+  --f-kufi: 'Reem Kufi', sans-serif;
+  --f-ruqaa: 'Aref Ruqaa', serif;
+  --f-poster: 'Dela Gothic One', sans-serif;
+  --f-body: 'Syne', sans-serif;
+  --f-mono: 'Chivo Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--sand);
+  color: var(--nile);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900;
+  background-image:
+    radial-gradient(rgba(13, 19, 38, 0.055) 1px, transparent 1px),
+    radial-gradient(rgba(217, 35, 46, 0.03) 1px, transparent 1px);
+  background-size: 6px 6px, 14px 14px;
+  background-position: 0 0, 3px 3px;
+}
+
+.kufic-border {
+  height: 18px;
+  background-color: var(--nile);
+  background-image: repeating-linear-gradient(90deg,
+    var(--ochre) 0 12px, var(--nile) 12px 18px,
+    var(--vermilion) 18px 30px, var(--nile) 30px 36px,
+    var(--cobalt) 36px 48px, var(--nile) 48px 54px);
+  border-top: 2px solid var(--nile);
+  border-bottom: 2px solid var(--nile);
+}
+.riso-title {
+  font-family: var(--f-poster);
+  text-transform: uppercase;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  text-shadow: -3px -2px 0 var(--cobalt), 3px 2px 0 var(--vermilion);
+}
+.dark .riso-title { color: var(--sand); }
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  background: var(--nile);
+  color: var(--ochre);
+  border: 1.5px solid var(--ochre);
+}
+.dark .meta-tag { background: var(--vermilion); color: var(--sand); }
+.btn-litho {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  padding: 9px 14px;
+  background: var(--ochre);
+  color: var(--nile);
+  border: 2px solid var(--nile);
+  box-shadow: 3px 3px 0 var(--nile);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  white-space: nowrap;
+}
+.btn-litho:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--nile); }
+.btn-litho.red { background: var(--vermilion); color: var(--sand); }
+
+/* ---------- Top bar ---------- */
+.press-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--nile);
+  color: var(--sand);
+  border-bottom: 3px solid var(--ochre);
+  padding: 10px clamp(16px, 3.5vw, 44px);
+}
+.press-nav-in {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.brand-lockup { display: flex; align-items: center; gap: 12px; color: var(--sand); text-decoration: none; }
+.brand-lockup .kufi-box {
+  background: var(--vermilion);
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: 1.3rem;
+  padding: 2px 12px;
+  border: 2px solid var(--ochre);
+}
+.brand-lockup .latin-id { font-family: var(--f-poster); font-size: 0.92rem; letter-spacing: 0.05em; }
+.nav-links { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.nav-links a:not(.btn-litho) {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--sand);
+  background: var(--nile-m);
+  border: 1.5px solid rgba(235, 225, 201, 0.28);
+  padding: 7px 10px;
+}
+.nav-links a:not(.btn-litho):hover { background: var(--cobalt); border-color: var(--sand); }
+@media (max-width: 760px) { .nav-links a:not(.btn-litho) { display: none; } }
+
+.wrap { max-width: 1380px; margin: 0 auto; padding: 0 clamp(16px, 3.5vw, 44px); }
+.sec { padding: 68px 0; border-bottom: 3px solid var(--nile); position: relative; }
+.sec.dark { background: var(--nile); color: var(--sand); border-bottom-color: var(--ochre); }
+.sec-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: end;
+  margin-bottom: 40px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid currentColor;
+}
+.sec-header h2 { font-size: clamp(2rem, 4.6vw, 3.6rem); margin-top: 12px; }
+@media (max-width: 860px) { .sec-header { grid-template-columns: 1fr; } }
+
+/* ---------- Cover ---------- */
+.cover-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+  gap: 36px;
+  align-items: start;
+}
+@media (max-width: 980px) { .cover-grid { grid-template-columns: 1fr; } }
+.manifesto {
+  background: var(--nile);
+  color: var(--sand);
+  border: 3px solid var(--nile);
+  padding: 26px;
+  box-shadow: 10px 10px 0 var(--vermilion), 20px 20px 0 var(--nile);
+}
+.lockup {
+  margin: 18px 0 18px;
+  border-top: 2px solid var(--ochre);
+  border-bottom: 2px solid var(--ochre);
+  padding: 14px 0;
+}
+.lockup .ar {
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  line-height: 0.95;
+  text-shadow: -4px -3px 0 var(--cobalt), 4px 3px 0 var(--vermilion);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lockup .en {
+  font-family: var(--f-poster);
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  line-height: 1;
+  color: var(--ochre);
+  margin-top: 8px;
+}
+.manifesto p { font-size: 0.95rem; opacity: 0.94; }
+.manifesto p + p { margin-top: 10px; }
+.manifesto h3 {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--ochre);
+  margin: 22px 0 10px;
+}
+.howto { list-style: none; counter-reset: how; display: grid; gap: 8px; }
+.howto li {
+  counter-increment: how;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 10px;
+  font-size: 0.9rem;
+  align-items: start;
+}
+.howto li::before {
+  content: counter(how);
+  font-family: var(--f-poster);
+  background: var(--vermilion);
+  color: var(--sand);
+  border: 2px solid var(--ochre);
+  text-align: center;
+  line-height: 26px;
+  height: 30px;
+}
+.howto b { color: var(--ochre); }
+
+/* ---------- Reels: the live prototype, scaled into a frame ---------- */
+.reel {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--nile);
+}
+.reel iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 900px;
+  border: 0;
+  transform-origin: 0 0;
+}
+.sim-frame { border: 3px solid var(--nile); background: var(--nile); box-shadow: 12px 12px 0 var(--cobalt); }
+.sim-top {
+  padding: 10px 16px;
+  background: var(--nile-m);
+  color: var(--sand);
+  border-bottom: 2px solid var(--ochre);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+}
+.sim-bar {
+  padding: 12px 16px;
+  background: var(--nile);
+  border-top: 2px solid var(--ochre);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sim-row { display: flex; align-items: center; gap: 12px; }
+.sim-row input[type="range"] { flex: 1; accent-color: var(--vermilion); cursor: pointer; }
+.sim-tabs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+@media (max-width: 720px) { .sim-tabs { grid-template-columns: repeat(4, 1fr); } }
+.sim-tab {
+  font-family: var(--f-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 7px 5px;
+  background: var(--nile-m);
+  color: var(--sand);
+  border: 1.5px solid rgba(235, 225, 201, 0.3);
+  cursor: pointer;
+}
+.sim-tab.active { background: var(--vermilion); border-color: var(--ochre); color: #fff; }
+.sim-note {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  background: var(--nile);
+  color: var(--sand);
+  padding: 10px 16px;
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+}
+
+/* ---------- Scene walkthrough ---------- */
+.walk {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.walk-stage { position: sticky; top: 90px; }
+.walk-stage .sim-frame { box-shadow: 10px 10px 0 var(--ochre); }
+.moments { list-style: none; display: grid; gap: 10px; }
+.moment {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 4px 14px;
+  padding: 12px 14px;
+  background: var(--nile-m);
+  color: var(--sand);
+  border: 2px solid rgba(235, 225, 201, 0.25);
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.moment:hover { border-color: var(--ochre); transform: translateX(3px); }
+.moment.active { background: var(--sand); color: var(--nile); border-color: var(--ochre); box-shadow: 6px 6px 0 var(--vermilion); }
+.moment .no {
+  grid-row: span 2;
+  font-family: var(--f-poster);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ochre);
+}
+.moment.active .no { color: var(--vermilion); }
+.moment .kind {
+  font-family: var(--f-mono);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--ochre);
+}
+.moment.active .kind { color: var(--cobalt); }
+.moment h4 { font-family: var(--f-poster); font-weight: 400; font-size: 1rem; line-height: 1.2; }
+.moment p { grid-column: 2; font-size: 0.86rem; opacity: 0.88; display: none; margin-top: 2px; }
+.moment.active p { display: block; }
+@media (max-width: 980px) {
+  .walk { grid-template-columns: 1fr; }
+  .walk-stage { position: sticky; top: 64px; z-index: 5; }
+}
+
+/* ---------- Palette & type ---------- */
+.ink-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.ink-plate { border: 3px solid var(--nile); background: var(--sand); box-shadow: 6px 6px 0 var(--nile); }
+.ink-well {
+  height: 104px;
+  border-bottom: 3px solid var(--nile);
+  padding: 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+.ink-well span {
+  font-family: var(--f-kufi);
+  font-weight: 800;
+  font-size: 1.45rem;
+  line-height: 1;
+  background: var(--sand);
+  color: var(--nile);
+  padding: 3px 9px;
+  border: 2px solid var(--nile);
+}
+.ink-meta { padding: 12px 14px; }
+.ink-meta b { display: block; font-family: var(--f-poster); font-weight: 400; font-size: 0.86rem; text-transform: uppercase; }
+.ink-meta code { font-family: var(--f-mono); font-size: 0.74rem; font-weight: 700; color: var(--vermilion); }
+.ink-meta p { font-size: 0.8rem; margin-top: 4px; }
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 18px;
+}
+.type-card {
+  border: 3px solid var(--nile);
+  background: #F4ECE0;
+  box-shadow: 6px 6px 0 var(--nile);
+  display: flex;
+  flex-direction: column;
+}
+.type-card .sample { padding: 20px 18px 14px; min-height: 120px; display: flex; align-items: center; border-bottom: 2px solid var(--nile); }
+.type-card .label { padding: 10px 18px 14px; font-size: 0.84rem; }
+.type-card .label b { font-family: var(--f-mono); font-size: 0.74rem; color: var(--cobalt); display: block; letter-spacing: 0.06em; }
+.riso-demo { background: var(--sand-d); cursor: crosshair; flex-direction: column; justify-content: center; gap: 10px; }
+.riso-demo .stack { position: relative; }
+.riso-demo .stack span { display: block; }
+.riso-demo .stack .c, .riso-demo .stack .v { position: absolute; left: 0; top: 0; mix-blend-mode: multiply; transition: transform 0.25s cubic-bezier(.3, 1.6, .5, 1); }
+.riso-demo .stack .c { color: var(--cobalt); }
+.riso-demo .stack .v { color: var(--vermilion); }
+
+/* ---------- Feedback ---------- */
+.asks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 18px;
+}
+.ask {
+  background: var(--sand);
+  color: var(--nile);
+  border: 3px solid var(--nile);
+  box-shadow: 8px 8px 0 var(--ochre);
+  padding: 18px 20px;
+}
+.ask .meta-tag { margin-bottom: 10px; }
+.ask h4 { font-family: var(--f-poster); font-weight: 400; font-size: 1.1rem; line-height: 1.2; margin-bottom: 8px; }
+.ask p { font-size: 0.9rem; }
+.foot {
+  text-align: center;
+  padding: 40px 16px 44px;
+  font-family: var(--f-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.foot .ar { font-family: var(--f-ruqaa); font-size: 2.4rem; color: var(--vermilion); display: block; line-height: 1.2; }
+</style>
+</head>
+<body>
+
+<div class="kufic-border" aria-hidden="true"></div>
+
+<header class="press-nav">
+  <div class="press-nav-in">
+    <a class="brand-lockup" href="#overview">
+      <span class="kufi-box">بازوكا</span>
+      <span class="latin-id">BAZOOKA · DESIGN REVIEW</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#overview">Overview</a>
+      <a href="#scenes">Scene by scene</a>
+      <a href="#palette">Palette &amp; type</a>
+      <a href="#feedback">Feedback wanted</a>
+      <a class="btn-litho" href="prototype.html" target="_blank" rel="noopener" data-open-prototype>Open full prototype ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ================= OVERVIEW ================= -->
+  <section class="sec" id="overview">
+    <div class="wrap">
+      <div class="cover-grid">
+        <div class="manifesto">
+          <span class="meta-tag">Landing page · Scroll prototype v4</span>
+          <div class="lockup">
+            <div class="ar"><span>صاروخ</span><span>بازوكا</span></div>
+            <div class="en">THE SAROUKH, IN 14 FLICKS</div>
+          </div>
+          <p>BAZOOKA is a shawarma brand built around the <b>Saroukh</b> (صاروخ, “rocket”): the long, tightly rolled, foil-wrapped saj wrap that street vendors in Cairo, Beirut and Damascus call a rocket or a bazooka.</p>
+          <p>The landing page treats scrolling as an adventure. Each flick of the wheel sets off a physical contraption (a cast-iron press, a carving sword, a rotisserie, a matchbox, a night shutter), all styled as a hand-printed 1968 Cairo cinema poster.</p>
+
+          <h3>HOW TO REVIEW</h3>
+          <ol class="howto">
+            <li><span>Press <b>Open full prototype</b> (top right) and view it full-screen. The reel on the right is the same page, shrunk.</span></li>
+            <li><span>Each flick of the mouse wheel, swipe or <b>↓</b> key plays one beat. The whole story is about 14 flicks.</span></li>
+            <li><span>Things to try: hover the hero to tilt the wrap, click a matchbox, and press <b>Tear ticket</b> on the receipt at the end.</span></li>
+            <li><span>Prefer free scrolling? Switch off <b>SNAP</b> in the top-right corner of the prototype.</span></li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="sim-frame">
+            <div class="sim-top">
+              <span>⊕ LIVE PROTOTYPE</span>
+              <span id="simStatus">STAGE 01 · THE SAROUKH</span>
+              <span id="simPct">00%</span>
+            </div>
+            <div class="reel" id="simReel"><iframe data-reel="embed" title="BAZOOKA prototype, full story"></iframe></div>
+            <div class="sim-bar">
+              <div class="sim-row">
+                <button class="btn-litho" type="button" id="simPlay">▶ Play the whole story</button>
+                <input type="range" id="simRange" min="0" max="1000" value="0" aria-label="Scrub through the story">
+              </div>
+              <div class="sim-tabs" id="simTabs">
+                <button type="button" class="sim-tab active" data-label="start">Hero</button>
+                <button type="button" class="sim-tab" data-label="clamp">Iron clamp</button>
+                <button type="button" class="sim-tab" data-label="chop">Anatomy</button>
+                <button type="button" class="sim-tab" data-label="spit3">The menu</button>
+                <button type="button" class="sim-tab" data-label="boxes">Sides</button>
+                <button type="button" class="sim-tab" data-label="shutter">3 AM</button>
+                <button type="button" class="sim-tab" data-label="receipt">Night window</button>
+              </div>
+            </div>
+          </div>
+          <div class="sim-note">
+            <span>Best experienced full-screen with a mouse or trackpad.</span>
+            <a class="btn-litho" href="prototype.html" target="_blank" rel="noopener" data-open-prototype>Open full prototype ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCENE BY SCENE ================= -->
+  <section class="sec dark" id="scenes">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">Scene by scene</span>
+          <h2 class="riso-title">Nine moments to review</h2>
+        </div>
+        <p>Six scenes, joined by five transitions. Pick a moment to replay it, or drag the slider to step through it frame by frame.</p>
+      </div>
+
+      <div class="walk">
+        <div class="walk-stage">
+          <div class="sim-frame">
+            <div class="sim-top">
+              <span id="walkKind">SCENE</span>
+              <span id="walkTitle">Foil tornado &amp; iron clamp</span>
+            </div>
+            <div class="reel" id="walkReel"><iframe data-reel="embed&amp;at=start" title="BAZOOKA prototype, single moment"></iframe></div>
+            <div class="sim-bar">
+              <div class="sim-row">
+                <button class="btn-litho" type="button" id="walkPlay">▶ Replay</button>
+                <input type="range" id="walkRange" min="0" max="1000" value="0" aria-label="Scrub through this moment">
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="moments" id="moments"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PALETTE & TYPE ================= -->
+  <section class="sec" id="palette">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">Palette &amp; type</span>
+          <h2 class="riso-title">Silkscreen inks &amp; poster type</h2>
+        </div>
+        <p>Raw unbleached poster stock overprinted in five silkscreen inks, with headlines printed in two slightly misaligned plates (blue and red) like a 1968 street lithograph.</p>
+      </div>
+
+      <div class="ink-grid">
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#0D1326"><span>ليل النيل</span></div>
+          <div class="ink-meta"><b>Nile Midnight</b><code>#0D1326</code><p>Key ink: outlines, dark scenes, the night window.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#1B3BF5"><span>أزرق كحلي</span></div>
+          <div class="ink-meta"><b>Al-Ahram Cobalt</b><code>#1B3BF5</code><p>First print plate: headline shadows, matchbox sleeves.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#D9232E"><span>أحمر طربوش</span></div>
+          <div class="ink-meta"><b>Pomegranate Vermilion</b><code>#D9232E</code><p>Second print plate: cinema ribbons, chili heat, price tickets.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#0D9463"><span>فستق حلبي</span></div>
+          <div class="ink-meta"><b>Damascus Pistachio</b><code>#0D9463</code><p>Fresh herbs, tile accents, the “order fired” stamp.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#D99B26"><span>نحاس أصفر</span></div>
+          <div class="ink-meta"><b>Brass Ochre</b><code>#D99B26</code><p>Brass trays and mortars, frames, highlights.</p></div>
+        </article>
+        <article class="ink-plate">
+          <div class="ink-well" style="background:#EBE1C9"><span>ورق طباعة</span></div>
+          <div class="ink-meta"><b>Litho Sand</b><code>#EBE1C9</code><p>The paper itself: hero poster, receipts, the kiosk.</p></div>
+        </article>
+      </div>
+
+      <div class="type-grid">
+        <article class="type-card">
+          <div class="sample" style="font-family:var(--f-kufi); font-weight:800; font-size:2.8rem; line-height:1">صاروخ شاورما</div>
+          <div class="label"><b>REEM KUFI · ARABIC HEADLINES</b>Geometric Kufic for titles, matchbox labels and bilingual lockups.</div>
+        </article>
+        <article class="type-card">
+          <div class="sample" style="font-family:var(--f-ruqaa); font-size:2.8rem; color:var(--vermilion); line-height:1.1"><span style="display:inline-block; transform:skewY(-5deg)">أقوى صاروخ في البلد</span></div>
+          <div class="label"><b>AREF RUQAA · BRUSH CALLOUTS</b>Hand-painted cinema-poster lettering for taglines and the “sound effect” stamps.</div>
+        </article>
+        <article class="type-card">
+          <div class="sample"><span class="riso-title" style="font-size:2.8rem">BAZOOKA</span></div>
+          <div class="label"><b>DELA GOTHIC ONE · LATIN POSTER</b>Ultra-heavy woodblock headlines, printed with the blue/red plate offset.</div>
+        </article>
+        <article class="type-card">
+          <div class="sample" style="font-size:1.05rem; font-weight:700">Charcoal-carved beef &amp; thigh, triple-whipped toum, beet-brined torshi &amp; sumac fries in foil-seared saj.</div>
+          <div class="label"><b>SYNE · BODY COPY</b>Architectural sans for dish descriptions and supporting text.</div>
+        </article>
+        <article class="type-card">
+          <div class="sample" style="font-family:var(--f-mono); font-weight:800; font-size:1rem; line-height:1.7">01x EL-BAZOOKA SAROUKH ···· Rs 850<br>CALIBER 380 G · LAST SHOW 03:00</div>
+          <div class="label"><b>CHIVO MONO · TICKETS &amp; SPECS</b>Receipts, prices, spec sheets and labels.</div>
+        </article>
+        <article class="type-card">
+          <div class="sample riso-demo" id="risoDemo">
+            <div class="stack" style="font-family:var(--f-kufi); font-weight:800; font-size:2.6rem; line-height:1.1">
+              <span class="c">شاورما بازوكا</span><span class="v">شاورما بازوكا</span><span>شاورما بازوكا</span>
+            </div>
+          </div>
+          <div class="label"><b>LIVE PLATE OFFSET · MOVE YOUR POINTER</b>In the prototype the two plates drift apart the faster you scroll, then snap back into register.</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEEDBACK ================= -->
+  <section class="sec dark" id="feedback">
+    <div class="wrap">
+      <div class="sec-header">
+        <div>
+          <span class="meta-tag">Your call</span>
+          <h2 class="riso-title">Feedback wanted</h2>
+        </div>
+        <p>The direction is set; these are the open decisions before we build the production site.</p>
+      </div>
+      <div class="asks">
+        <article class="ask">
+          <span class="meta-tag">Pacing</span>
+          <h4>Is 14 flicks the right length?</h4>
+          <p>The menu orbit takes one flick per dish (5 flicks) so each card can be read. We can show two dishes per flick, or let people skim the menu sideways.</p>
+        </article>
+        <article class="ask">
+          <span class="meta-tag">Scroll control</span>
+          <h4>Keep “one flick = one beat”?</h4>
+          <p>Snapping makes every flick land on a finished moment, but takes scroll control away from the visitor. The SNAP toggle shows the free-scroll alternative.</p>
+        </article>
+        <article class="ask">
+          <span class="meta-tag">Placeholder copy</span>
+          <h4>Prices, tagline &amp; claims</h4>
+          <p>Prices (Rs 850–1,450 per wrap), the tagline “أقوى صاروخ في البلد”, the “A direct hit” review line, “since 1968” and the dish descriptions are placeholders to confirm.</p>
+        </article>
+        <article class="ask">
+          <span class="meta-tag">Next step</span>
+          <h4>Production build</h4>
+          <p>Once approved, this moves into the production site on the same stack as our other brand sites, with real menu data and ordering links.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span class="ar">بالهنا والشفا</span>
+  BAZOOKA · DESIGN REVIEW · OCTOBER 2026
+</footer>
+<div class="kufic-border" aria-hidden="true"></div>
+
+<script>
+/* ============================================================================
+   Where the prototype lives. Locally it's prototype.html next to this file;
+   the single-file share build replaces BZ_PROTO with an embedded copy.
+   ============================================================================ */
+window.BZ_PROTO = window.BZ_PROTO || { url: opts => 'prototype.html' + (opts ? '?' + opts : '') };
+
+document.querySelectorAll('[data-open-prototype]').forEach(a => {
+  a.href = BZ_PROTO.url('');
+});
+document.querySelectorAll('iframe[data-reel]').forEach(f => {
+  f.src = BZ_PROTO.url(f.dataset.reel);
+});
+
+/* ============================================================================
+   Reel host: each reel is the prototype in embed mode, rendered at 1440x900,
+   scaled to fit, and driven by seek/play messages.
+   ============================================================================ */
+const REEL_W = 1440;
+const reels = new Map();
+const reelResize = new ResizeObserver(entries => entries.forEach(e => {
+  e.target.querySelector('iframe').style.transform = `scale(${e.target.clientWidth / REEL_W})`;
+}));
+
+function mountReel(box, { onReady, onState } = {}) {
+  const frame = box.querySelector('iframe');
+  reelResize.observe(box);
+  const api = {
+    labels: null,
+    duration: 0,
+    time: 0,
+    seek(time, instant) { frame.contentWindow.postMessage({ bz: true, cmd: 'seek', time, instant }, '*'); },
+    play(from, to) { frame.contentWindow.postMessage({ bz: true, cmd: 'play', from, to }, '*'); },
+    pause() { this.seek(this.time, true); }
+  };
+  reels.set(frame, { api, onReady, onState });
+  return api;
+}
+
+addEventListener('message', e => {
+  const m = e.data;
+  if (!m || !m.bz) return;
+  for (const [frame, r] of reels) {
+    if (frame.contentWindow !== e.source) continue;
+    if (m.cmd === 'ready') {
+      Object.assign(r.api, { labels: m.labels, duration: m.duration });
+      if (r.onReady) r.onReady(r.api);
+    }
+    if (m.cmd === 'state' && r.api.labels) {
+      r.api.time = m.time;
+      if (r.onState) r.onState(m, r.api);
+    }
+  }
+});
+
+/* ---------- Overview reel ---------- */
+(() => {
+  const range = document.getElementById('simRange');
+  const playBtn = document.getElementById('simPlay');
+  const statusEl = document.getElementById('simStatus');
+  const pctEl = document.getElementById('simPct');
+  const tabs = [...document.querySelectorAll('#simTabs .sim-tab')];
+  let playing = false;
+  const setPlaying = on => {
+    playing = on;
+    playBtn.textContent = on ? '⏸ Pause' : '▶ Play the whole story';
+  };
+
+  const reel = mountReel(document.getElementById('simReel'), {
+    onState(m, api) {
+      const p = api.duration ? m.time / api.duration : 0;
+      range.value = Math.round(p * 1000);
+      pctEl.textContent = String(Math.round(p * 100)).padStart(2, '0') + '%';
+      if (m.hud) statusEl.textContent = m.hud;
+      let active = tabs[0];
+      tabs.forEach(t => { if (api.labels[t.dataset.label] <= m.time + 0.01) active = t; });
+      tabs.forEach(t => t.classList.toggle('active', t === active));
+      if (playing && m.time >= api.duration - 0.01) setPlaying(false);
+    }
+  });
+
+  range.addEventListener('input', () => {
+    if (!reel.duration) return;
+    setPlaying(false);
+    reel.seek(range.value / 1000 * reel.duration);
+  });
+  playBtn.addEventListener('click', () => {
+    if (!reel.duration) return;
+    if (playing) {
+      reel.pause();
+      setPlaying(false);
+    } else {
+      reel.play(reel.time >= reel.duration - 0.05 ? 0 : reel.time, reel.duration);
+      setPlaying(true);
+    }
+  });
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    if (!reel.labels) return;
+    setPlaying(false);
+    reel.seek(reel.labels[tab.dataset.label]);
+  }));
+})();
+
+/* ---------- Scene-by-scene walkthrough (one reel, nine beat ranges) ---------- */
+const MOMENTS = [
+  { from: 'start', to: 'clamp', kind: 'Scene 1 · Hero', title: 'Foil tornado & iron clamp',
+    text: 'The poster comes alive: foil ribbons and garnishes blow off in a spiral, then a cast-iron press slams down and sears the wrap. طَشّ! (“tssshh”).' },
+  { from: 'clamp', to: 'launch', kind: 'Transition', title: 'Rocket launch & touchdown',
+    text: 'The seared wrap ignites a chili-oil exhaust and launches like a rocket. Three ink colours streak after it and wipe the poster, then it crash-lands in the next scene. طاخ! (“bang”).' },
+  { from: 'launch', to: 'chop', kind: 'Scene 2 · Anatomy', title: 'The 5-slice chop',
+    text: 'A carving knife chops the wrap into five cross-sections, each labelled with what’s inside: saj crust, toum, ribeye, torshi, sumac potato.' },
+  { from: 'chop', to: 'cleave', kind: 'Transition', title: 'Sword slash',
+    text: 'The knife slashes the screen corner to corner and the two halves fall away. شَقّ! (“slash”).' },
+  { from: 'cleave', to: 'spit5', kind: 'Scene 3 · The menu', title: 'Rotisserie orbit',
+    text: 'The five signature wraps orbit the rotisserie spit under a 1968 cinema marquee. Each flick brings the next dish forward with its menu card and price.' },
+  { from: 'spit5', to: 'blackout', kind: 'Transition', title: 'Power cut & match strike',
+    text: 'The marquee bulbs die, a match strikes in the dark, and its flame burns a hole through to the next scene.' },
+  { from: 'blackout', to: 'boxes', kind: 'Scene 4 · Sides & drinks', title: 'Matchbox chain reaction',
+    text: 'One spark sets off five vintage matchboxes in a row; each slides open and pops out a side or drink with its price.' },
+  { from: 'boxes', to: 'shutter', kind: 'Transition', title: '3 AM shutter',
+    text: 'A steel night shutter slams down over the kiosk. It’s 3:00 AM. طراخ! (“crash”).' },
+  { from: 'shutter', to: 'receipt', kind: 'Scene 5 · Night window', title: 'Brass tray feast & receipt',
+    text: 'The shutter rolls up on the late-night window; a brass tray skids down the counter, the order lands around it, and the ticket prints. “Tear ticket” stamps the order.' }
+];
+
+(() => {
+  const list = document.getElementById('moments');
+  const range = document.getElementById('walkRange');
+  const playBtn = document.getElementById('walkPlay');
+  const kindEl = document.getElementById('walkKind');
+  const titleEl = document.getElementById('walkTitle');
+  list.innerHTML = MOMENTS.map((m, i) => `
+    <li><button type="button" class="moment${i ? '' : ' active'}">
+      <span class="no">${String(i + 1).padStart(2, '0')}</span>
+      <span class="kind">${m.kind.toUpperCase()}</span>
+      <h4>${m.title}</h4>
+      <p>${m.text}</p>
+    </button></li>
+  `).join('');
+  const buttons = [...list.querySelectorAll('.moment')];
+  let active = 0;
+  const span = api => [api.labels[MOMENTS[active].from], api.labels[MOMENTS[active].to]];
+
+  const reel = mountReel(document.getElementById('walkReel'), {
+    onState(m, api) {
+      const [t0, t1] = span(api);
+      range.value = Math.round(Math.max(0, Math.min(1, (m.time - t0) / (t1 - t0))) * 1000);
+    }
+  });
+
+  function choose(i, play) {
+    active = i;
+    buttons.forEach((b, k) => b.classList.toggle('active', k === i));
+    kindEl.textContent = MOMENTS[i].kind.toUpperCase();
+    titleEl.textContent = MOMENTS[i].title;
+    if (!reel.labels) return;
+    const [t0, t1] = span(reel);
+    if (play) reel.play(t0, t1);
+    else reel.seek(t0, true);
+  }
+  buttons.forEach((b, i) => b.addEventListener('click', () => choose(i, true)));
+  playBtn.addEventListener('click', () => choose(active, true));
+  range.addEventListener('input', () => {
+    if (!reel.labels) return;
+    const [t0, t1] = span(reel);
+    reel.seek(t0 + (t1 - t0) * range.value / 1000);
+  });
+})();
+
+/* ---------- Plate-offset demo ---------- */
+(() => {
+  const demo = document.getElementById('risoDemo');
+  const c = demo.querySelector('.c');
+  const v = demo.querySelector('.v');
+  const set = (dx, dy) => {
+    c.style.transform = `translate(${-dx}px, ${-dy}px)`;
+    v.style.transform = `translate(${dx}px, ${dy}px)`;
+  };
+  set(3, 2);
+  demo.addEventListener('pointermove', e => {
+    const r = demo.getBoundingClientRect();
+    set(((e.clientX - r.left) / r.width - 0.5) * 24, ((e.clientY - r.top) / r.height - 0.5) * 18);
+  });
+  demo.addEventListener('pointerleave', () => set(3, 2));
+})();
+</script>
+</body>
+</html>

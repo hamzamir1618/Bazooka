@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Python scripts compile
+        run: python -m py_compile design/scripts/cutouts.py design/scripts/build_share.py
+
+      - name: Build single-file share copies
+        run: python design/scripts/build_share.py
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Smoke-test prototype, design spec and share builds
+        run: npm test
+
+      - name: Upload shareable files
+        uses: actions/upload-artifact@v4
+        with:
+          name: bazooka-share
+          path: design/share/*.html
+          if-no-files-found: error

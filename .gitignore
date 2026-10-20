@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Node (CI smoke test)
+node_modules/
+
+# Build output and caches: regenerate with `python design/scripts/build_share.py`
+design/share/
+design/vendor/
+
+# Superseded single-file builds from before design/share/ existed
+design/*-standalone.html
