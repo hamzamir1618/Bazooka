@@ -17,5 +17,6 @@ dist/
 *.tsbuildinfo
 tests/.shots/
 
-# Vercel CLI link
+# Vercel CLI link and the env file it pulls
 .vercel/
+.env*
