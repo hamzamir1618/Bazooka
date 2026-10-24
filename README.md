@@ -12,6 +12,10 @@ npm run preview    # serves the production build
 npm test           # smoke test against the production build (needs `npx playwright install chromium` once)
 ```
 
+## Deploy
+
+Hosted on Vercel, connected to this GitHub repo: pushes to `main` deploy to production and pull requests get preview URLs. `vercel.json` sets the build (`npm ci`, `npm run build`, `dist/`) and cache headers. The site uses hash routing, so it needs no rewrites. `.vercelignore` leaves the source art, design prototype and tests out of the upload. Node is pinned to 22.x in `package.json`, the same version CI uses.
+
 ## Stack
 
 React 18, TypeScript, Vite, GSAP 3 with ScrollTrigger (`@gsap/react`), Lenis smooth scroll. No router library: pages are switched in `App.tsx` so each switch can run its own full-screen transition. The URL hash deep-links: `#menu`, `#dish/<id>`, `#story`, `#visit`, `#order`, `#confirm`.

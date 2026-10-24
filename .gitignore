@@ -16,3 +16,6 @@ design/*-standalone.html
 dist/
 *.tsbuildinfo
 tests/.shots/
+
+# Vercel CLI link
+.vercel/

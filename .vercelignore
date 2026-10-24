@@ -1,0 +1,8 @@
+# The build only needs index.html, src/, public/ and the npm/TS config.
+# Source art (assets/), the design prototype and tests stay out of the upload.
+assets/
+design/
+tests/
+dist/
+node_modules/
+*.tsbuildinfo
